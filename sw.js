@@ -1,6 +1,6 @@
 // Next Up offline worker. Network first, so a new version shows up the next time
 // the app opens online; falls back to the saved copy when offline.
-const CACHE = 'nextup-v1';
+const CACHE = 'nextup-v2';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'sortable.min.js', 'fonts/manrope.css',
   'fonts/manrope-latin-400-normal.woff2', 'fonts/manrope-latin-500-normal.woff2', 'fonts/manrope-latin-600-normal.woff2',
   'fonts/manrope-latin-700-normal.woff2', 'fonts/manrope-latin-800-normal.woff2',

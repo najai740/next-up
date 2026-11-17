@@ -386,6 +386,7 @@ textarea{width:100%;min-height:110px;resize:vertical;border:1px solid var(--s3);
 /* brain dump */
 .dump-grid{display:grid;grid-template-columns:minmax(360px,520px) minmax(0,1fr);gap:18px;align-items:start}
 .dump-big{display:flex;gap:10px;margin-bottom:18px;max-width:900px}
+form[data-kind="shared"]{flex-wrap:wrap}form[data-kind="shared"] input{flex:1 1 100%}form[data-kind="shared"] select{flex:1;max-width:none!important;padding:10px}
 .dump-big input{flex:1;border:1px solid var(--s3);background:rgba(11,15,20,.55);border-radius:16px;padding:14px 16px;font-size:16px}
 
 /* wizard */
@@ -536,6 +537,8 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
   </div>
 </dialog>
 
+<dialog id="shareDlg"><div class="dlg" id="shareBox"></div></dialog>
+
 <div class="toast" id="toast" role="status"><span id="toastMsg"></span><button type="button" id="toastBtn" hidden></button></div>
 
 <script>
@@ -552,7 +555,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
     { id: 'sleep', name: 'Sleep', start: 23 * 60, len: 480, days: 'all', color: '#8B93FF', fold: false },
     { id: 'work', name: 'Work', start: 9 * 60, len: 480, days: 'weekdays', color: '#00D1FF', fold: false }
   ];
-  let state = { tasks: [], anchors: DEF_ANCHORS(), fold: {}, cap: 180, layout: {}, v3: true, homeOrder: ['day', 'dump', 'cal', 'org'], templates: [] };
+  let state = { tasks: [], anchors: DEF_ANCHORS(), fold: {}, cap: 180, layout: {}, v3: true, homeOrder: ['day', 'dump', 'cal', 'org'], templates: [], sync: null };
   const ui = { hist: [], calMonth: null, addAt: null, scr: { s: 'home' }, sel: null, bdSel: null, wiz: { id: null, step: 0 }, pool: 'all', pickedId: null, editingId: null, refocus: null, scrollNow: false };
 
   const $ = s => document.querySelector(s);
@@ -600,7 +603,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
         if (p && Array.isArray(p.tasks)){
           state.tasks = p.tasks.map(norm);
           state.anchors = Array.isArray(p.anchors) ? p.anchors : DEF_ANCHORS();
-          state.fold = p.fold || {}; state.cap = p.cap || 180; state.layout = p.layout || {}; state.templates = Array.isArray(p.templates) ? p.templates : []; if (Array.isArray(p.homeOrder)) state.homeOrder = p.homeOrder;
+          state.fold = p.fold || {}; state.cap = p.cap || 180; state.layout = p.layout || {}; state.templates = Array.isArray(p.templates) ? p.templates : []; if (Array.isArray(p.homeOrder)) state.homeOrder = p.homeOrder; state.sync = p.sync || null;
           if (!p.v3){ state.anchors.forEach(a => { a.fold = false; }); state.layout = {}; state.v3 = true; }
           return;
         }
@@ -609,7 +612,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
       if (old){ const p = JSON.parse(old); if (p && Array.isArray(p.tasks)) state.tasks = p.tasks.map(t => { const n = norm(t); n.start = toMin(t.time); delete n.time; return n; }); }
     } catch (e) {}
   }
-  function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} if (window._syncSoon) window._syncSoon(); }
   let saveT; const saveSoon = () => { clearTimeout(saveT); saveT = setTimeout(save, 400); };
   const get = id => state.tasks.find(t => t.id === id);
 
@@ -633,7 +636,8 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
 
   // ---------- tasks ----------
   const isOpen = t => t.status !== 'done';
-  const tasksOn = d => state.tasks.filter(t => !t.anchorOf && (t.status === 'planned' || t.status === 'done') && (t.date === d || (!t.date && d === today())));
+  const onPlan = (t, d) => t && !t.anchorOf && (t.status === 'planned' || t.status === 'done') && !(t.shared && !t.date) && (t.date === d || (!t.date && d === today()));
+  const tasksOn = d => state.tasks.filter(t => onPlan(t, d));
   const scheduled = d => tasksOn(d).filter(t => t.start != null).sort((a, b) => a.start - b.start);
   const anytime = d => tasksOn(d).filter(t => t.start == null);
   const inbox = () => state.tasks.filter(t => t.status === 'inbox');
@@ -719,6 +723,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
     folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.2h7a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></svg>',
     repeat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l3 3-3 3"/><path d="M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3"/><path d="M20 13v2a3 3 0 0 1-3 3H4"/></svg>',
     search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3c2.4-.4 4.5 1.1 5 4.2"/></svg>',
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
     chevd: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'
   };
@@ -755,6 +760,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
     const bl = isOpen(t) ? blockers(t) : [];
     if (bl.length) c.push(`<span class="chip warn">${I.lock}Waiting on ${esc(bl[0].title)}${bl.length > 1 ? ' +' + (bl.length - 1) : ''}</span>`);
     if (t.subtasks.length) c.push(`<span class="chip">${t.subtasks.filter(s => s.done).length}/${t.subtasks.length} steps</span>`);
+    if (t.shared) c.push(`<span class="chip" style="color:#FF8FB1">${I.share}${esc(whoLabel(t.assignee, true))}</span>`);
     if (o.extra) c.push(o.extra);
     return c.length ? `<div class="chips">${c.join('')}</div>` : '';
   }
@@ -812,6 +818,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
         <div class="ht-row" data-act="goto" data-s="dump" role="button" tabindex="0"><span class="fi" style="color:#FFB86B;border-color:rgba(255,184,107,.3);background:rgba(255,184,107,.08)">${I.brain}</span><span class="grow ht-text"><h2>Brain dump</h2><span class="sub">${nIn ? nIn + ' to sort' : 'Nothing to sort'}${nPool ? ', ' + nPool + ' in task pool' : ''}</span></span><span class="chev">›</span></div>
         <form class="add" data-kind="cap"><input type="text" name="title" placeholder="Note it, then forget it" aria-label="Add to brain dump" autocomplete="off"><button class="btn primary" type="submit">Add</button></form></li>`,
       cal: `<li class="card htab" data-key="cal" data-act="goto" data-s="cal" role="button" tabindex="0"><span class="fi" style="color:#8B93FF;border-color:rgba(139,147,255,.3);background:rgba(139,147,255,.1)">${I.cal}</span><span class="grow ht-text"><h2>Calendar</h2><span class="sub">${monthN ? monthN + (monthN === 1 ? ' task' : ' tasks') + ' this month' : 'Your month at a glance'}</span></span><span class="chev">›</span></li>`,
+      shared: `<li class="card htab" data-key="shared" data-act="goto" data-s="shared" role="button" tabindex="0"><span class="fi" style="color:#FF8FB1;border-color:rgba(255,143,177,.3);background:rgba(255,143,177,.08)">${I.share}</span><span class="grow ht-text"><h2>Shared</h2><span class="sub">${sharedSub()}</span></span><span class="chev">›</span></li>`,
       org: `<li class="card htab" data-key="org" data-act="goto" data-s="org" role="button" tabindex="0"><span class="fi" style="color:#4FD1A5;border-color:rgba(79,209,165,.3);background:rgba(79,209,165,.08)">${I.wand}</span><span class="grow ht-text"><h2>Organiser</h2><span class="sub">Pick for me, plan my week, day shape and task pool</span></span><span class="chev">›</span></li>`
     };
     const order = state.homeOrder.filter(k => tabs[k]).concat(Object.keys(tabs).filter(k => !state.homeOrder.includes(k)));
@@ -903,7 +910,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
 
   // ---------- hourly layout ----------
   const anchorById = id => state.anchors.find(a => a.id === id);
-  const belongs = (t, d) => t && (t.status === 'planned' || t.status === 'done') && (t.date === d || (!t.date && d === today()));
+  const belongs = (t, d) => onPlan(t, d);
   function placeNear(L, h, entry){
     for (let k = h; k < 24; k++) if (L[k] && L[k].k === 'e'){ L[k] = entry; return k; }
     for (let k = h - 1; k >= 0; k--) if (L[k] && L[k].k === 'e'){ L[k] = entry; return k; }
@@ -1097,6 +1104,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
     const when = t.status === 'inbox' ? 'From brain dump' : t.status === 'pool' ? 'In task pool' : esc(dayName(t.date || today(), true)) + (t.start != null ? ', ' + hm(t.start) + ' – ' + hm(t.start + 60) : '');
     return `<div class="phead${done ? ' done' : ''}"><button type="button" class="check big${done ? ' on' : ''}" data-check="${t.id}" aria-label="${done ? 'Mark not done' : 'Mark done'}">${I.tick}</button><div><h1 class="ttitle" data-dbl="${t.id}" title="Double-click to edit" style="cursor:text">${esc(t.title)}</h1><div class="sub">${when}</div></div><span class="grow"></span>
         <button type="button" class="btn" data-act="edit" data-id="${t.id}">${I.edit} Edit</button>
+        ${t.anchorOf ? '' : `<button type="button" class="btn" data-act="share-open" data-id="${t.id}">${I.share} ${t.shared ? 'Sharing' : 'Share'}</button>`}
         <button type="button" class="btn" data-act="save-tpl" data-id="${t.id}" title="Save this and everything inside it to reuse later">${I.repeat} Use again</button>
         ${done ? '' : `<button type="button" class="btn primary" data-act="focus-mode" data-id="${t.id}">${I.timer} Focus mode${t.runningSince ? ' (running)' : ''}</button>`}</div>
       <div class="task-one">${p.stepsCard}</div>`;
@@ -1116,7 +1124,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
     if (!ui.bdSel || !get(ui.bdSel) || get(ui.bdSel).status === 'done' || get(ui.bdSel).status === 'planned'){ ui.bdSel = ins[0] ? ins[0].id : null; ui.wiz = { id: ui.bdSel, step: 0 }; }
     const sel = ui.bdSel && get(ui.bdSel);
     if (sel && ui.wiz.id !== sel.id) ui.wiz = { id: sel.id, step: 0 };
-    const row = t => `<li class="trow${ui.bdSel === t.id ? ' sel' : ''}" data-id="${t.id}" data-open="${t.id}" role="button" tabindex="0"><span style="width:4px"></span><div class="tbody"><div class="ttitle">${esc(t.title)}</div>${chipsHTML(t)}</div><button type="button" class="icon-btn reveal" data-act="del" data-id="${t.id}" aria-label="Delete">${I.x}</button></li>`;
+    const row = t => `<li class="trow${ui.bdSel === t.id ? ' sel' : ''}" data-id="${t.id}" data-open="${t.id}" role="button" tabindex="0"><span style="width:4px"></span><div class="tbody"><div class="ttitle">${esc(t.title)}</div>${chipsHTML(t)}</div><button type="button" class="icon-btn" data-act="share-open" data-id="${t.id}" aria-label="Share ${esc(t.title)}"${t.shared ? ' aria-pressed="true"' : ''}>${I.share}</button><button type="button" class="icon-btn reveal" data-act="del" data-id="${t.id}" aria-label="Delete">${I.x}</button></li>`;
     return `<div class="phead"><div><h1>Brain dump</h1><div class="sub">Sort each note once. The app uses what you tell it to plan your week and pick your next job.</div></div></div>
       <form class="dump-big" data-kind="cap"><input type="text" name="title" placeholder="What's on your mind?" aria-label="Add to brain dump" autocomplete="off"><button class="btn primary" type="submit">Tuck it away</button></form>
       <div class="dump-grid">
@@ -1177,12 +1185,12 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
   let sorts = [];
   function render(){
     const s = ui.scr.s; let html = '';
-    const label = x => x.s === 'home' ? 'Home' : x.s === 'day' ? 'Day planner' + (x.date && x.date !== today() ? ' (' + dayName(x.date) + ')' : '') : x.s === 'dump' ? 'Brain dump' : x.s === 'cal' ? 'Calendar' : x.s === 'org' ? 'Organiser' : x.s === 'timer' ? 'Focus mode' : x.s === 'step' ? ((nodeAt(get(x.id), x.path || []) || {}).title || 'Step') : (x.id && get(x.id) ? get(x.id).title : 'Focus');
+    const label = x => x.s === 'home' ? 'Home' : x.s === 'day' ? 'Day planner' + (x.date && x.date !== today() ? ' (' + dayName(x.date) + ')' : '') : x.s === 'dump' ? 'Brain dump' : x.s === 'cal' ? 'Calendar' : x.s === 'org' ? 'Organiser' : x.s === 'shared' ? 'Shared' : x.s === 'timer' ? 'Focus mode' : x.s === 'step' ? ((nodeAt(get(x.id), x.path || []) || {}).title || 'Step') : (x.id && get(x.id) ? get(x.id).title : 'Focus');
     const path = ui.hist.concat([ui.scr]);
     const crumbs = (path[0].s === 'home' ? '' : `<button type="button" class="crumb" data-act="home">Home</button><span class="csep">\\</span>`) +
       path.map((x, i) => i === path.length - 1 ? `<span class="crumb cur">${esc(label(x))}</span>` : `<button type="button" class="crumb" data-act="crumb" data-i="${i}">${esc(label(x))}</button><span class="csep">\\</span>`).join('');
     const navbar = `<div class="navbar"><button type="button" class="btn sm" data-act="back">${I.back} Back</button><nav class="crumbs-bar" aria-label="You are here">${I.home}${crumbs}</nav></div>`;
-    if (s === 'home') html = homeScreen(); else if (s === 'day') html = navbar + dayScreen(); else if (s === 'dump') html = navbar + dumpScreen(); else if (s === 'cal') html = navbar + calScreen(); else if (s === 'org') html = navbar + orgScreen(); else if (s === 'timer') html = navbar + timerScreen(); else if (s === 'step') html = navbar + stepScreen(); else html = navbar + focusScreen();
+    if (s === 'home') html = homeScreen(); else if (s === 'day') html = navbar + dayScreen(); else if (s === 'dump') html = navbar + dumpScreen(); else if (s === 'cal') html = navbar + calScreen(); else if (s === 'org') html = navbar + orgScreen(); else if (s === 'shared') html = navbar + sharedScreen(); else if (s === 'timer') html = navbar + timerScreen(); else if (s === 'step') html = navbar + stepScreen(); else html = navbar + focusScreen();
     const app = $('#app'), key = JSON.stringify(ui.scr);
     app.innerHTML = `<div class="${app.dataset.key !== key ? 'screen' : ''}">${html}</div>`; app.dataset.key = key;
     if (!state.tasks.some(t => t.runningSince)) document.title = 'Next Up';
@@ -1468,6 +1476,13 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
         if (h < 0){ toast('No free hours left today'); break; }
         syncLayout(d, L); save(); render(); toast(`Added to today at ${pad(h)}:00`); break;
       }
+      case 'share-open': openShare(ds.id); break;
+      case 'share-set': shareSet(ui.shareId, ds.v); break;
+      case 'share-close': $('#shareDlg').close(); break;
+      case 'take': { const t = get(ds.id); if (t){ t.assignee = state.sync.user.id; t.status = 'pool'; save(); render(); toast('Added to your task pool'); } break; }
+      case 'sync-now': syncNow(true); break;
+      case 'sync-auth': syncAuth(ds.mode); break;
+      case 'sync-out': if (ds.sure){ state.sync = null; state.tasks.forEach(t => { if (t.shared){ t.shared = false; if (t.status === 'shared') t.status = 'pool'; } }); save(); render(); toast('Disconnected. Shared tasks were kept as your own.'); } else { el.dataset.sure = '1'; el.textContent = 'Tap again to disconnect'; } break;
       case 'cal-today': ui.calMonth = today().slice(0, 7); render(); break;
       case 'open-day': ui.scrollNow = ds.date === today(); go({ s: 'day', date: ds.date }); break;
       case 'set-date': ui.addAt = null; ui.scr = { s: 'day', date: ds.date }; ui.scrollNow = ds.date === today(); render(); break;
@@ -1529,6 +1544,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
     const f = e.target; if (!f.dataset.kind) return; e.preventDefault();
     const title = (f.elements.title && f.elements.title.value || '').trim(); if (!title) return;
     const k = f.dataset.kind, d = (f.elements.date && f.elements.date.value) || ui.scr.date || today();
+    if (k === 'shared'){ const t = addTask({ title, status: 'shared', shared: true, assignee: f.elements.who.value }); if (t.assignee === state.sync.user.id) t.status = 'pool'; ui.refocus = 'form[data-kind="shared"] input'; save(); render(); toast('Shared'); return; }
     if (k === 'cap'){ addTask({ title, status: 'inbox' }); ui.refocus = f.classList.contains('dump-big') ? '.dump-big input' : '.cap input'; render(); toast('Tucked away in your brain dump'); }
     else if (k === 'add' || k === 'at'){
       const L = layoutFor(d), dur = f.elements.dur && f.elements.dur.value ? +f.elements.dur.value : null;
@@ -1580,7 +1596,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
     try { localStorage.setItem('nextup.beforeRestore', JSON.stringify(state)); } catch (e) {}
     delete p.app; delete p.exportedAt;
     try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (e) { toast('Could not save on this device'); return; }
-    state = { tasks: [], anchors: DEF_ANCHORS(), fold: {}, cap: 180, layout: {}, v3: true, homeOrder: ['day', 'dump', 'cal', 'org'], templates: [] };
+    state = { tasks: [], anchors: DEF_ANCHORS(), fold: {}, cap: 180, layout: {}, v3: true, homeOrder: ['day', 'dump', 'cal', 'org'], templates: [], sync: null };
     load(); render(); toast('Restored ' + state.tasks.length + ' tasks');
   }
   document.addEventListener('click', async e => {
@@ -1602,6 +1618,138 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
     const f = e.target.closest('input[data-bk="file"]'); if (!f || !f.files[0]) return;
     f.files[0].text().then(txt => { document.getElementById('bkText').value = txt; restoreFrom(txt); });
   });
+
+  // ---------- household sharing ----------
+  const SYNC_ON = () => !!(state.sync && state.sync.token);
+  const meId = () => state.sync && state.sync.user ? state.sync.user.id : null;
+  const partner = () => ((state.sync && state.sync.users) || []).find(u => u.id !== meId()) || null;
+  function whoLabel(a, short){ if (!a) return short ? 'Household' : 'Household pool'; if (a === meId()) return short ? 'Me' : 'For me'; const u = ((state.sync && state.sync.users) || []).find(x => x.id === a); return (short ? '' : 'For ') + (u ? u.name : 'partner'); }
+  function sharedSub(){
+    if (!SYNC_ON()) return 'Share jobs and a household brain dump';
+    const s = state.tasks.filter(t => t.shared && t.status !== 'done');
+    const mine = s.filter(t => t.assignee === meId()).length, pool = s.filter(t => !t.assignee).length;
+    return `${mine} for you, ${pool} in household pool` + (state.sync.err ? ' (not synced, at home?)' : '');
+  }
+  const stripOpen = a => (a || []).map(s => ({ id: s.id, title: s.title, dur: s.dur || 0, done: !!s.done, notes: s.notes || '', subtasks: stripOpen(s.subtasks) }));
+  const payload = t => ({ id: t.id, title: t.title, notes: t.notes || '', subtasks: stripOpen(t.subtasks), due: t.due || '', imp: t.imp, dur: t.dur, done: t.status === 'done', assignee: t.assignee || '' });
+  const hashOf = t => JSON.stringify(payload(t));
+  function placeFor(t){
+    if (t.status === 'done') return;
+    const mine = t.assignee === meId();
+    if (mine && t.status === 'shared') t.status = 'pool';
+    if (!mine && (t.status === 'inbox' || t.status === 'pool' || t.status === 'planned')) t.status = 'shared';
+  }
+  function openShare(id){
+    const t = get(id); if (!t) return; ui.shareId = id;
+    const box = $('#shareBox');
+    if (!SYNC_ON()){ box.innerHTML = `<h3>Share</h3><p class="muted">Connect to your home sync server first.</p><div class="actions"><button class="btn" type="button" data-act="share-close">Close</button><button class="btn primary" type="button" data-act="goto" data-s="shared" onclick="document.getElementById('shareDlg').close()">Set up sharing</button></div>`; $('#shareDlg').showModal(); return; }
+    const p = partner(), cur = t.shared ? (t.assignee || '') : null;
+    const opt = (v, b, s) => `<button type="button" class="opt" data-act="share-set" data-v="${v}" aria-pressed="${cur === v}"><b>${b}</b><span>${s}</span></button>`;
+    box.innerHTML = `<h3>Share "${esc(t.title)}"</h3><div class="opts">
+      ${opt(meId(), 'For me', 'Shared, and on your list')}
+      ${p ? opt(p.id, 'For ' + esc(p.name), 'Goes onto their list') : ''}
+      ${opt('', 'Household pool', 'Either of you can take it')}
+      ${t.shared ? '<button type="button" class="opt" data-act="share-set" data-v="__stop"><b>Stop sharing</b><span>Removes it from the other phone</span></button>' : ''}</div>
+      ${p ? '' : '<p class="muted small" style="margin-top:12px">Your partner hasn\'t joined yet. Their option appears once they sign up.</p>'}
+      <div class="actions"><button class="btn" type="button" data-act="share-close">Close</button></div>`;
+    $('#shareDlg').showModal();
+  }
+  function shareSet(id, v){
+    const t = get(id); if (!t) return; $('#shareDlg').close();
+    if (v === '__stop'){ t.shared = false; delete t.assignee; if (t.status === 'shared') t.status = 'pool'; save(); render(); toast('No longer shared'); return; }
+    t.shared = true; t.assignee = v; placeFor(t); save(); render();
+    toast(v === meId() ? 'Shared, still on your list' : v ? 'Sent to ' + whoLabel(v, true) : 'Added to the household pool');
+  }
+
+  function api(path, opt){
+    const s = state.sync; opt = opt || {};
+    const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 8000);
+    return fetch(s.url.replace(/\/+$/, '') + path, { method: opt.body ? 'POST' : 'GET', headers: Object.assign({ 'Content-Type': 'application/json' }, s.token ? { Authorization: 'Bearer ' + s.token } : {}), body: opt.body ? JSON.stringify(opt.body) : undefined, signal: ctl.signal })
+      .then(async r => { clearTimeout(tm); const j = await r.json().catch(() => ({})); if (!r.ok){ const e = new Error(j.error || 'Server error ' + r.status); e.status = r.status; throw e; } return j; })
+      .catch(e => { clearTimeout(tm); if (e.status) throw e; const x = new Error('Can\'t reach the sync server. Are you on home wifi, and is the certificate installed?'); x.net = true; throw x; });
+  }
+  async function syncAuth(mode){
+    const f = document.getElementById('syncForm'); if (!f) return;
+    const url = f.elements.url.value.trim(), name = f.elements.name.value.trim(), password = f.elements.pw.value, code = f.elements.code ? f.elements.code.value.trim() : '';
+    if (!/^https:\/\//.test(url) && !/^http:\/\/(localhost|127\.)/.test(url)){ toast('The address must start with https://'); return; }
+    state.sync = { url, token: null, seq: 0, known: [] };
+    try {
+      const r = await api(mode === 'signup' ? '/api/signup' : '/api/login', { body: { name, password, code } });
+      state.sync.token = r.token; state.sync.user = r.user; save();
+      await syncNow(false); toast('Connected as ' + r.user.name);
+    } catch (e) { state.sync = null; ui.syncErr = e.message; render(); }
+  }
+  let syncing = false, syncT;
+  async function syncNow(loud){
+    if (!SYNC_ON() || syncing) return; syncing = true; const s = state.sync;
+    try {
+      const u = await api('/api/users'); s.users = u.users; s.user = u.me;
+      const present = new Set(state.tasks.map(t => t.id));
+      const out = state.tasks.filter(t => t.shared && t.syncHash !== hashOf(t)).map(payload);
+      (s.known || []).forEach(id => { const t = get(id); if (!present.has(id) || (t && !t.shared)) out.push({ id, deleted: true }); });
+      if (out.length){
+        await api('/api/items', { body: { items: out } });
+        out.forEach(o => { const t = get(o.id); if (o.deleted){ s.known = (s.known || []).filter(x => x !== o.id); } else if (t){ t.syncHash = hashOf(t); if (!s.known.includes(t.id)) s.known.push(t.id); } });
+      }
+      const r = await api('/api/items?since=' + (s.seq || 0));
+      r.items.forEach(it => {
+        let t = get(it.id);
+        if (it.deleted){ if (t && t.shared) state.tasks = state.tasks.filter(x => x !== t); s.known = (s.known || []).filter(x => x !== it.id); return; }
+        if (!t){ t = norm({ id: it.id, status: 'shared' }); state.tasks.push(t); }
+        Object.assign(t, { title: it.title, notes: it.notes || '', subtasks: it.subtasks || [], due: it.due || '', imp: it.imp == null ? null : it.imp, dur: it.dur == null ? null : it.dur, assignee: it.assignee || '', shared: true, from: it.createdBy });
+        if (it.done && t.status !== 'done'){ if (t.runningSince){ t.remaining = remainingOf(t); t.runningSince = null; } t.prev = t.status; t.status = 'done'; t.doneAt = it.updatedAt; }
+        else if (!it.done && t.status === 'done'){ t.status = t.prev && t.prev !== 'done' ? t.prev : 'pool'; t.doneAt = null; }
+        placeFor(t); t.syncHash = hashOf(t);
+        if (!s.known.includes(t.id)) s.known.push(t.id);
+      });
+      s.seq = r.seq; s.err = null; s.last = Date.now();
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+      if (loud) toast('Synced');
+      if (r.items.length || out.length || loud || ui.scr.s === 'shared') softRender();
+    } catch (e) {
+      if (e.status === 401){ s.token = null; toast('Please sign in to sharing again'); }
+      s.err = e.message; if (loud) toast(e.message); if (ui.scr.s === 'shared') softRender();
+    } finally { syncing = false; }
+  }
+  function softRender(){ const a = document.activeElement; if (document.querySelector('dialog[open]') || (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) return; render(); }
+  window._syncSoon = () => { if (!SYNC_ON()) return; clearTimeout(syncT); syncT = setTimeout(() => syncNow(false), 1500); };
+  setInterval(() => { if (!document.hidden) syncNow(false); }, 30000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) syncNow(false); });
+  window.addEventListener('online', () => syncNow(false));
+
+  function sharedScreen(){
+    if (!SYNC_ON()){
+      const s = ui.syncPrev || {};
+      return `<div class="phead"><div><h1>Shared</h1><div class="sub">Share jobs with each other and keep a household brain dump. Everything else stays private on your phone.</div></div></div>
+      <section class="card task-one"><h2 style="margin-bottom:6px">Connect to your home server</h2>
+        <p class="hint">Use the address and setup code from your NAS. The first time, choose Join. After that, Sign in.</p>
+        <form id="syncForm" onsubmit="return false">
+          <label class="field"><span>Server address</span><input type="url" name="url" placeholder="https://192.168.1.50:8443" value="${esc(s.url || (state.sync && state.sync.url) || '')}" autocomplete="off" inputmode="url"></label>
+          <div class="two"><label class="field"><span>Your name</span><input type="text" name="name" autocomplete="username"></label>
+          <label class="field"><span>Password</span><input type="password" name="pw" autocomplete="current-password"></label></div>
+          <label class="field"><span>Setup code (only for Join)</span><input type="text" name="code" autocomplete="off"></label>
+          ${ui.syncErr ? `<p class="chip late" style="margin:0 0 12px">${esc(ui.syncErr)}</p>` : ''}
+          <div class="actions" style="justify-content:flex-start"><button type="button" class="btn primary" data-act="sync-auth" data-mode="signup">Join</button><button type="button" class="btn" data-act="sync-auth" data-mode="login">Sign in</button></div>
+        </form></section>`;
+    }
+    const s = state.sync, p = partner(), sh = state.tasks.filter(t => t.shared);
+    const open = sh.filter(t => t.status !== 'done'), done = sh.filter(t => t.status === 'done').sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0)).slice(0, 10);
+    const mine = open.filter(t => t.assignee === meId()), pool = open.filter(t => !t.assignee), theirs = open.filter(t => t.assignee && t.assignee !== meId());
+    const row = (t, btn) => trow(t, { clock: false, handle: false, date: true }).replace('</li>', (btn || '') + '</li>');
+    const list = (arr, btn, empty) => `<ul class="list">${arr.length ? arr.map(t => row(t, btn(t))).join('') : `<li class="empty">${empty}</li>`}</ul>`;
+    const ago = s.last ? Math.round((Date.now() - s.last) / 60000) : null;
+    return `<div class="phead"><div><h1>Shared</h1><div class="sub">Signed in as ${esc(s.user.name)}${p ? ' with ' + esc(p.name) : ', waiting for your partner to join'}. ${s.err ? '<span style="color:var(--warn)">Not synced: ' + esc(s.err) + '</span>' : ago == null ? '' : ago < 1 ? 'Synced just now.' : 'Synced ' + ago + ' min ago.'}</div></div><span class="grow"></span><button type="button" class="btn" data-act="sync-now">${I.repeat} Sync now</button></div>
+      <form class="add dump-big" data-kind="shared"><input type="text" name="title" placeholder="Add a shared job or household note" aria-label="New shared item" autocomplete="off">
+        <select name="who" aria-label="For who" style="max-width:150px"><option value="">Household pool</option><option value="${meId()}">For me</option>${p ? `<option value="${p.id}">For ${esc(p.name)}</option>` : ''}</select><button class="btn primary" type="submit">Add</button></form>
+      <div class="org-grid">
+        <section class="card"><div class="card-head"><h2>For me</h2><span class="muted small">${mine.length}</span></div>${list(mine, t => t.status === 'pool' ? `<button type="button" class="btn sm" data-act="pool-today" data-id="${t.id}">Do today</button>` : '', 'Nothing assigned to you.')}</section>
+        <section class="card"><div class="card-head"><h2>Household pool</h2><span class="muted small">${pool.length}</span></div>${list(pool, t => `<button type="button" class="btn sm" data-act="take" data-id="${t.id}">I'll take it</button>`, 'Shared brain dump. Add anything either of you could do.')}</section>
+        ${p ? `<section class="card"><div class="card-head"><h2>For ${esc(p.name)}</h2><span class="muted small">${theirs.length}</span></div>${list(theirs, () => '', 'Nothing assigned to ' + esc(p.name) + '.')}</section>` : ''}
+        <section class="card"><div class="card-head"><h2>Recently done</h2></div>${list(done, () => '', 'Nothing finished yet.')}</section>
+      </div>
+      <p class="muted small" style="margin-top:22px">Only items you share go to your NAS. Use the Share button on any task, or the share icon in your brain dump. <button type="button" class="btn sm ghost danger" data-act="sync-out">Disconnect this phone</button></p>`;
+  }
+  if (SYNC_ON()) setTimeout(() => syncNow(false), 300);
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   load(); render();
