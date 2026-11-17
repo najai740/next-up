@@ -1724,7 +1724,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
       <section class="card task-one"><h2 style="margin-bottom:6px">Connect to your home server</h2>
         <p class="hint">Use the address and setup code from your NAS. The first time, choose Join. After that, Sign in.</p>
         <form id="syncForm" onsubmit="return false">
-          <label class="field"><span>Server address</span><input type="url" name="url" placeholder="https://192.168.1.50:8443" value="${esc(s.url || (state.sync && state.sync.url) || '')}" autocomplete="off" inputmode="url"></label>
+          <label class="field"><span>Server address</span><input type="url" name="url" placeholder="https://192.168.1.50:8443" value="${esc(s.url || (state.sync && state.sync.url) || 'https://10.3.1.218:8443')}" autocomplete="off" inputmode="url"></label>
           <div class="two"><label class="field"><span>Your name</span><input type="text" name="name" autocomplete="username"></label>
           <label class="field"><span>Password</span><input type="password" name="pw" autocomplete="current-password"></label></div>
           <label class="field"><span>Setup code (only for Join)</span><input type="text" name="code" autocomplete="off"></label>
