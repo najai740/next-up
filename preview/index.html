@@ -1377,7 +1377,7 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
     if (NX_SCREENS[s]) html = NX_SCREENS[s](); else if (s === 'home') html = homeScreen(); else if (s === 'day') html = navbar + dayScreen(); else if (s === 'dump') html = navbar + dumpScreen(); else if (s === 'cal') html = navbar + calScreen(); else if (s === 'org') html = navbar + orgScreen(); else if (s === 'shared') html = navbar + sharedScreen(); else if (s === 'timer') html = navbar + timerScreen(); else if (s === 'step') html = navbar + stepScreen(); else html = navbar + focusScreen();
     const app = $('#app'), key = JSON.stringify(ui.scr);
     app.innerHTML = `<div class="${app.dataset.key !== key ? 'screen' : ''}">${html}</div>`; app.dataset.key = key;
-    if (!state.tasks.some(t => t.runningSince)) document.title = 'Next Up';
+    if (!state.tasks.some(t => t.runningSince)) document.title = 'Next Up v2';
     makeSortables(); updateClocks();
     nxAfter();
     const nr = document.querySelector('.nowrow'); if (nr) nr.style.setProperty('--fill', nr.dataset.fill + '%');
