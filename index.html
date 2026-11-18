@@ -469,6 +469,176 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
 @media (max-width:1400px){.day-grid{grid-template-columns:minmax(280px,320px) minmax(0,1fr)}.day-grid>.col3{grid-column:1/-1}.focus-grid{grid-template-columns:1fr 1fr}.week{grid-template-columns:repeat(4,1fr)}}
 @media (max-width:1000px){.shell{grid-template-columns:1fr}.side{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)}.main{padding:20px 16px 60px}.day-grid,.focus-grid,.dump-grid{grid-template-columns:1fr}.home-grid{grid-template-columns:1fr}.span2{grid-column:auto}.week{grid-template-columns:repeat(2,1fr)}.sticky{position:static;max-height:none}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ===== v2: Now / Day / Life / Calendar ===== */
+body.nxon .main{padding-bottom:110px}
+:root{--n1:#0E1520;--n2:#141D2B;--n3:#1B2636;--nl:rgba(148,163,184,.14);--nt:#E6EDF5;--nm:#8C9BB0;--nf:#5B6B80;--na:#5EE1FF}.nx{max-width:980px;margin:0 auto}
+.nx h1{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:0;line-height:1.1}
+.nx-top{display:flex;align-items:flex-end;gap:12px;margin:4px 0 18px;flex-wrap:wrap}
+.nx-top .sub{color:var(--nm);font-size:14px;margin-top:4px}
+.nx-ic{display:inline-grid;place-items:center;width:22px;height:22px;flex:none;color:var(--c)}
+.nx-ic svg{width:18px;height:18px}
+.nx-ic.lg{width:44px;height:44px;border-radius:14px;background:color-mix(in srgb,var(--c) 14%,transparent)}
+.nx-ic.lg svg{width:24px;height:24px}
+.nx-btn{border:1px solid var(--nl);background:var(--n2);color:var(--nt);border-radius:12px;padding:8px 14px;font-weight:600;font-size:14px;display:inline-flex;gap:6px;align-items:center;min-height:40px}
+.nx-btn svg{width:16px;height:16px}
+.nx-btn.pri{background:var(--na);color:#03151C;border-color:transparent}
+.nx-btn.ghost{background:transparent;border-color:transparent;color:var(--nm)}
+.nx-sec{color:var(--nm);font-size:12.5px;font-weight:700;margin:22px 0 8px;display:flex;align-items:center;gap:8px}
+.nx-empty{color:var(--nf);font-size:14px;padding:10px 2px}
+
+/* task rows */
+.nt{display:flex;align-items:center;gap:10px;padding:6px 4px;border-radius:12px;min-height:44px}
+.nt:hover{background:rgba(148,163,184,.06)}
+.nchk{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid color-mix(in srgb,var(--c,#94A3B8) 70%,#334155);background:transparent;display:grid;place-items:center;padding:0;color:#03151C}
+.nchk svg{width:12px;height:12px;opacity:0}
+.nchk.on{background:var(--c,#5EE1FF);border-color:var(--c,#5EE1FF)}
+.nchk.on svg{opacity:1}
+.nchk.big{width:30px;height:30px}
+.nt-main{flex:1;min-width:0;border:none;background:none;text-align:left;padding:2px 0;display:grid;gap:1px;color:var(--nt)}
+.nt-t{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.nt-m{font-size:12.5px;color:var(--nm);display:flex;gap:4px 10px;flex-wrap:wrap}
+.nt-m .late{color:#FF7A88}.nt-m .warn{color:#FFB86B}
+.nt.done .nt-t{text-decoration:line-through;color:var(--nf)}
+
+/* timeline */
+.nx-days{display:flex;gap:6px;overflow-x:auto;margin:0 -4px 16px;padding:2px 4px;scrollbar-width:none}
+.nx-days::-webkit-scrollbar{display:none}
+.nx-days button{flex:none;border:1px solid var(--nl);background:var(--n1);border-radius:12px;min-width:50px;padding:6px 8px;display:grid;justify-items:center;line-height:1.2;color:var(--nt)}
+.nx-days button small{font-size:11px;color:var(--nm)}
+.nx-days button[aria-pressed="true"]{border-color:var(--na);background:rgba(94,225,255,.12)}
+.tl{list-style:none;margin:0;padding:0;position:relative}
+.tl::before{content:"";position:absolute;left:62px;top:6px;bottom:6px;width:1px;background:var(--nl)}
+.tl-item{display:grid;grid-template-columns:52px minmax(0,1fr);gap:20px;margin-bottom:10px;position:relative}
+.tl-time{text-align:right;font-variant-numeric:tabular-nums;padding-top:12px;line-height:1.15}
+.tl-time b{display:block;font-size:14px;font-weight:700;color:var(--nt)}
+.tl-time span{font-size:11.5px;color:var(--nf)}
+.tl-item.past{opacity:.5}
+.tl-item.past:hover{opacity:.85}
+.tl-dot{position:absolute;left:58px;top:17px;width:9px;height:9px;border-radius:50%;background:var(--c,#475569);box-shadow:0 0 0 3px var(--bg)}
+.tl-item.now .tl-dot{background:var(--na);box-shadow:0 0 0 3px var(--bg),0 0 12px var(--na)}
+.now-pill{display:inline-block;background:var(--na);color:#03151C;font-weight:800;font-size:12px;border-radius:999px;padding:2px 7px;margin-top:4px}
+.band{border-radius:16px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 16%,var(--n1)),color-mix(in srgb,var(--c) 5%,var(--n1)));border-left:3px solid var(--c);padding:4px 10px 6px}
+.tl-item.now .band,.tl-item.now .tl-task{box-shadow:0 0 0 1px color-mix(in srgb,var(--na) 55%,transparent),0 0 22px rgba(94,225,255,.12)}
+.band-head{display:flex;align-items:center;gap:10px;width:100%;border:none;background:none;color:var(--nt);padding:8px 0;text-align:left;min-height:44px}
+.band-head b{font-size:16px}
+.band-head .rng{color:var(--nm);font-size:13px;font-variant-numeric:tabular-nums}
+.band-head .chev{margin-left:auto;color:var(--nm);display:grid;transition:transform .25s}
+.band-head .chev svg{width:18px;height:18px}
+.band.open .band-head .chev{transform:rotate(180deg)}
+.band-mini{list-style:none;margin:0 0 4px 32px;padding:0;display:grid;gap:2px}
+.band-mini li{font-size:13.5px;color:#C5D1DE;display:flex;align-items:center;gap:8px}
+.band-mini li i{width:6px;height:6px;border-radius:50%;background:var(--c)}
+.band-mini li.d{color:var(--nf);text-decoration:line-through}
+.band-hours{margin:2px 0 4px}
+.bh{display:grid;grid-template-columns:46px minmax(0,1fr);gap:8px;border-top:1px solid var(--nl);padding:4px 0}
+.bh>span{font-size:12.5px;color:var(--nm);font-variant-numeric:tabular-nums;padding-top:12px}
+.bh.nowh>span{color:var(--na);font-weight:800}
+.add-here{border:none;background:none;color:var(--nf);font-size:13px;padding:10px 4px;text-align:left;min-height:40px}
+.add-here:hover{color:var(--na)}
+.tl-task{border-radius:14px;background:var(--n1);border-left:3px solid var(--c);padding:2px 8px}
+.tl-free .free{width:100%;border:1px dashed var(--nl);background:transparent;border-radius:12px;color:var(--nf);font-size:13px;padding:9px 12px;text-align:left;min-height:40px}
+.tl-free .free:hover{color:var(--na);border-color:rgba(94,225,255,.35)}
+.tl-free .tl-time{padding-top:10px}
+.tl-free .tl-time b{font-weight:600;color:var(--nm)}
+
+/* now view */
+.now-clock{font-size:clamp(44px,12vw,64px);font-weight:700;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.ncard{border-radius:22px;padding:18px;background:var(--n1);border:1px solid var(--nl);position:relative}
+.ncard.cur{background:linear-gradient(160deg,color-mix(in srgb,var(--c) 22%,var(--n1)),var(--n1) 70%);border-color:color-mix(in srgb,var(--c) 45%,transparent);box-shadow:0 0 30px color-mix(in srgb,var(--c) 14%,transparent)}
+.ncard .lbl{font-size:12.5px;font-weight:800;color:var(--c);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ncard .lbl i{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+.ncard .ttl{display:flex;align-items:center;gap:12px}
+.ncard .ttl h2{font-size:24px;margin:0;font-weight:700;letter-spacing:-.01em;overflow-wrap:anywhere}
+.ncard .ttl p{margin:2px 0 0;color:var(--nm);font-size:14px}
+.ncard .go{margin-left:auto;flex:none;width:52px;height:52px;border-radius:50%;border:none;background:var(--c);color:#03151C;display:grid;place-items:center}
+.ncard .go svg{width:22px;height:22px}
+.nbar{height:6px;border-radius:6px;background:rgba(148,163,184,.16);margin:14px 0 6px;overflow:hidden}
+.nbar i{display:block;height:100%;background:var(--c);border-radius:6px}
+.nbar-l{display:flex;justify-content:space-between;font-size:12px;color:var(--nm);font-variant-numeric:tabular-nums}
+.ncard.next{margin-top:12px;padding:14px 16px}
+.ncard.next .ttl h2{font-size:18px}
+.later{list-style:none;margin:0;padding:0}
+.later li{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--nl)}
+.later li .tm{width:48px;flex:none;font-variant-numeric:tabular-nums;color:var(--nm);font-size:13.5px}
+.later li button{flex:1;min-width:0;border:none;background:none;color:inherit;text-align:left;padding:0;display:flex;align-items:center;gap:10px;min-height:32px}
+
+/* life tree */
+.life{display:grid;gap:20px;grid-template-columns:minmax(0,1fr)}.life>.node{width:100%}
+@media (min-width:1000px){.life.two{grid-template-columns:minmax(300px,380px) minmax(0,1fr);align-items:start}.life.two .tree-pane{position:sticky;top:20px}}
+@media (max-width:999px){.life.two .tree-pane{display:none}}
+.tree-pane{background:var(--n1);border:1px solid var(--nl);border-radius:20px;padding:12px 10px}
+.tree{list-style:none;margin:0;padding:0}
+.tree .tree{margin-left:13px;padding-left:12px;border-left:1px solid var(--nl)}
+.tr-row{display:flex;align-items:center;gap:2px;border-radius:10px;min-height:40px}
+.tr-row.sel{background:rgba(94,225,255,.10)}
+.tr-row:hover{background:rgba(148,163,184,.06)}
+.tr-tw,.tr-sp{width:26px;height:26px;flex:none;border:none;background:none;color:var(--nf);display:grid;place-items:center;padding:0;border-radius:7px}
+.tr-tw svg{width:14px;height:14px;transition:transform .2s}
+.tr-tw.open svg{transform:rotate(90deg)}
+.tr-name{flex:1;min-width:0;display:flex;align-items:center;gap:8px;border:none;background:none;color:var(--nt);text-align:left;padding:6px 6px 6px 2px;font-size:15px;font-weight:600}
+.tr-name>span:not(.nx-ic){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-name small{color:var(--nm);font-weight:500;font-size:12.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tr-name em{margin-left:auto;font-style:normal;font-size:12px;color:var(--nf);font-weight:600}
+.tr-row.task .tr-name{font-weight:500;font-size:14px;color:#C5D1DE}
+.tr-row.task .tr-name i{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none;margin:0 8px 0 7px}
+.tr-row.task.d .tr-name{color:var(--nf);text-decoration:line-through}
+.tr-root{font-size:13px;font-weight:800;color:var(--nm);padding:4px 8px 8px;display:flex;align-items:center;gap:8px}
+.tree-foot{display:flex;gap:8px;flex-wrap:wrap;padding:12px 6px 4px;border-top:1px solid var(--nl);margin-top:10px}
+.crumbs{display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-size:13.5px;color:var(--nm);margin-bottom:10px}
+.crumbs button{border:none;background:none;color:var(--nm);padding:4px 4px;font-weight:600;border-radius:6px}
+.crumbs button:hover{color:var(--nt)}
+.crumbs .cur{color:var(--na);font-weight:700}
+.node-head{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.node-head h1{font-size:28px}
+.node-head .sub{color:var(--nm);font-size:14px}
+.node-acts{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.sublist{display:grid;gap:4px}
+.subrow{display:flex;align-items:center;gap:10px;border:1px solid var(--nl);background:var(--n1);border-radius:12px;padding:8px 12px;color:var(--nt);text-align:left;width:100%;min-height:48px;font-weight:600}
+.subrow em{margin-left:auto;font-style:normal;color:var(--nm);font-size:12.5px;font-weight:600}
+.nx-addf{display:flex;gap:8px;margin-top:10px}
+.nx-addf input{flex:1;min-width:0;border:1px solid var(--nl);background:var(--n1);color:var(--nt);border-radius:12px;padding:10px 12px;font-size:16px}
+
+/* calendar */
+.ncal{background:var(--n1);border:1px solid var(--nl);border-radius:20px;padding:14px}
+.ncal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ncal-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.ncal-g .wd{text-align:center;font-size:11.5px;color:var(--nf);font-weight:700;padding:4px 0}
+.ncal-g button{aspect-ratio:1;border:1px solid transparent;background:transparent;border-radius:12px;color:var(--nt);font-weight:600;font-size:14px;display:grid;place-items:center;align-content:center;gap:3px;padding:0}
+.ncal-g button.past{color:var(--nf)}
+.ncal-g button.today{color:var(--na)}
+.ncal-g button[aria-pressed="true"]{background:rgba(94,225,255,.12);border-color:var(--na)}
+.ncal-g .dots{display:flex;gap:2px;height:5px}
+.ncal-g .dots i{width:5px;height:5px;border-radius:50%;background:var(--c)}
+
+/* bottom nav */
+.nx-nav{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;justify-content:center;gap:2px;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));background:rgba(11,15,20,.92);backdrop-filter:blur(12px);border-top:1px solid rgba(148,163,184,.12)}
+.nx-nav button{flex:1;max-width:110px;border:none;background:none;color:#7C8BA0;display:grid;justify-items:center;gap:3px;font-size:11.5px;font-weight:700;padding:6px 0;border-radius:12px;min-height:52px}
+.nx-nav button svg{width:22px;height:22px}
+.nx-nav button[aria-current="page"]{color:#5EE1FF}
+.nx-nav button[aria-current="page"] svg{filter:drop-shadow(0 0 6px rgba(94,225,255,.6))}
+@media (min-width:1000px){
+  .nx-nav{top:0;right:auto;width:84px;flex-direction:column;justify-content:flex-start;padding:24px 8px;border-top:none;border-right:1px solid rgba(148,163,184,.12)}
+  .nx-nav button{max-width:none;flex:none}
+  body.nxon .main{padding-left:120px;padding-bottom:60px}
+}
+
+/* sheets */
+dialog.nxs{width:min(620px,calc(100vw - 16px))}
+.sh{padding:20px}
+.sh-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sh-head h3{margin:0;font-size:21px;flex:1;min-width:0;overflow-wrap:anywhere}
+.sh-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sh-grid label{display:grid;gap:5px;font-size:12.5px;color:var(--muted);font-weight:700}
+.sh-grid input,.sh-grid select{width:100%;border:1px solid var(--s3);background:rgba(11,15,20,.55);color:var(--ink);border-radius:12px;padding:10px;font-size:16px;min-height:44px}
+.sh-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.icgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px;margin:6px 0 14px}
+.icgrid button{height:44px;border-radius:12px;border:1px solid var(--s3);background:transparent;color:var(--c);display:grid;place-items:center}
+.icgrid button svg{width:20px;height:20px}
+.icgrid button[aria-pressed="true"]{border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+.colgrid{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+.colgrid button{width:34px;height:34px;border-radius:50%;border:2px solid transparent;background:var(--c)}
+.colgrid button[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 10px var(--c)}
 </style>
 </head>
 <body>
@@ -539,6 +709,11 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
 
 <dialog id="shareDlg"><div class="dlg" id="shareBox"></div></dialog>
 
+<dialog id="nxDlg" class="nxs"><div class="sh" id="nxBox"></div></dialog>
+<dialog id="nxAdd" class="nxs"><div class="sh" id="nxAddBox"></div></dialog>
+<dialog id="nxCat" class="nxs"><div class="sh" id="nxCatBox"></div></dialog>
+<nav class="nx-nav" id="nxNav" aria-label="Main"></nav>
+
 <div class="toast" id="toast" role="status"><span id="toastMsg"></span><button type="button" id="toastBtn" hidden></button></div>
 
 <script>
@@ -556,7 +731,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
     { id: 'work', name: 'Work', start: 9 * 60, len: 480, days: 'weekdays', color: '#00D1FF', fold: false }
   ];
   let state = { tasks: [], anchors: DEF_ANCHORS(), fold: {}, cap: 180, layout: {}, v3: true, homeOrder: ['day', 'dump', 'cal', 'org'], templates: [], sync: null };
-  const ui = { hist: [], calMonth: null, addAt: null, scr: { s: 'home' }, sel: null, bdSel: null, wiz: { id: null, step: 0 }, pool: 'all', pickedId: null, editingId: null, refocus: null, scrollNow: false };
+  const ui = { hist: [], calMonth: null, addAt: null, scr: { s: 'now' }, sel: null, bdSel: null, wiz: { id: null, step: 0 }, pool: 'all', pickedId: null, editingId: null, refocus: null, scrollNow: false };
 
   const $ = s => document.querySelector(s);
   const pad = n => String(n).padStart(2, '0');
@@ -603,7 +778,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
         if (p && Array.isArray(p.tasks)){
           state.tasks = p.tasks.map(norm);
           state.anchors = Array.isArray(p.anchors) ? p.anchors : DEF_ANCHORS();
-          state.fold = p.fold || {}; state.cap = p.cap || 180; state.layout = p.layout || {}; state.templates = Array.isArray(p.templates) ? p.templates : []; if (Array.isArray(p.homeOrder)) state.homeOrder = p.homeOrder; state.sync = p.sync || null;
+          state.fold = p.fold || {}; state.cap = p.cap || 180; state.layout = p.layout || {}; state.templates = Array.isArray(p.templates) ? p.templates : []; if (Array.isArray(p.homeOrder)) state.homeOrder = p.homeOrder; state.sync = p.sync || null; state.cats = Array.isArray(p.cats) ? p.cats : null; state.nopen = p.nopen || {};
           if (!p.v3){ state.anchors.forEach(a => { a.fold = false; }); state.layout = {}; state.v3 = true; }
           return;
         }
@@ -933,7 +1108,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
       const missing = mine.filter(t => !seen.has(t.id)).sort((a, b) => (a.start == null ? 1e4 : a.start) - (b.start == null ? 1e4 : b.start));
       missing.forEach(t => {
         const h = t.start != null ? Math.floor(t.start / 60) : firstHour(d);
-        if (t.start != null && L[h].k === 'a'){ L[h] = { k: 't', id: t.id }; return; }
+        if (t.start != null){ if (L[h].k !== 't') L[h] = { k: 't', id: t.id }; return; }
         placeNear(L, h, { k: 't', id: t.id });
       });
     } else {
@@ -941,7 +1116,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
       mine.filter(t => t.start != null).sort((a, b) => a.start - b.start).forEach(t => { const h = Math.floor(t.start / 60); if (!L[h]) L[h] = { k: 't', id: t.id }; else later.push(t); });
       for (let h = 0; h < 24; h++) if (!L[h]){ const a = anchorAt(d, h * 60); if (a) L[h] = { k: 'a', aid: a.id }; }
       for (let h = 0; h < 24; h++) if (!L[h]) L[h] = { k: 'e' };
-      later.concat(mine.filter(t => t.start == null)).forEach(t => placeNear(L, t.start != null ? Math.floor(t.start / 60) : firstHour(d), { k: 't', id: t.id }));
+      mine.filter(t => t.start == null).forEach(t => placeNear(L, t.start != null ? Math.floor(t.start / 60) : firstHour(d), { k: 't', id: t.id }));
     }
     syncLayout(d, L);
     return L;
@@ -1190,11 +1365,12 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
     const crumbs = (path[0].s === 'home' ? '' : `<button type="button" class="crumb" data-act="home">Home</button><span class="csep">\\</span>`) +
       path.map((x, i) => i === path.length - 1 ? `<span class="crumb cur">${esc(label(x))}</span>` : `<button type="button" class="crumb" data-act="crumb" data-i="${i}">${esc(label(x))}</button><span class="csep">\\</span>`).join('');
     const navbar = `<div class="navbar"><button type="button" class="btn sm" data-act="back">${I.back} Back</button><nav class="crumbs-bar" aria-label="You are here">${I.home}${crumbs}</nav></div>`;
-    if (s === 'home') html = homeScreen(); else if (s === 'day') html = navbar + dayScreen(); else if (s === 'dump') html = navbar + dumpScreen(); else if (s === 'cal') html = navbar + calScreen(); else if (s === 'org') html = navbar + orgScreen(); else if (s === 'shared') html = navbar + sharedScreen(); else if (s === 'timer') html = navbar + timerScreen(); else if (s === 'step') html = navbar + stepScreen(); else html = navbar + focusScreen();
+    if (NX_SCREENS[s]) html = NX_SCREENS[s](); else if (s === 'home') html = homeScreen(); else if (s === 'day') html = navbar + dayScreen(); else if (s === 'dump') html = navbar + dumpScreen(); else if (s === 'cal') html = navbar + calScreen(); else if (s === 'org') html = navbar + orgScreen(); else if (s === 'shared') html = navbar + sharedScreen(); else if (s === 'timer') html = navbar + timerScreen(); else if (s === 'step') html = navbar + stepScreen(); else html = navbar + focusScreen();
     const app = $('#app'), key = JSON.stringify(ui.scr);
     app.innerHTML = `<div class="${app.dataset.key !== key ? 'screen' : ''}">${html}</div>`; app.dataset.key = key;
     if (!state.tasks.some(t => t.runningSince)) document.title = 'Next Up';
     makeSortables(); updateClocks();
+    document.body.classList.add('nxon'); $('#nxNav').innerHTML = nxNav(); if ($('#nxDlg').open) fillSheet();
     const nr = document.querySelector('.nowrow'); if (nr) nr.style.setProperty('--fill', nr.dataset.fill + '%');
     if (ui.refocus){ const el = document.querySelector(ui.refocus); if (el) el.focus(); ui.refocus = null; }
     if (ui.scrollNow){ ui.scrollNow = false; const n = document.querySelector('.htime.now'); if (n) n.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' }); }
@@ -1450,6 +1626,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
   });
 
   function doAct(a, ds, el){
+    if (nxAct(a, ds, el)) return;
     switch (a){
       case 'goto':
         if (ds.s === 'day'){ ui.scrollNow = true; go({ s: 'day', date: today() }); }
@@ -1543,6 +1720,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
   document.addEventListener('submit', e => {
     const f = e.target; if (!f.dataset.kind) return; e.preventDefault();
     const title = (f.elements.title && f.elements.title.value || '').trim(); if (!title) return;
+    if (nxSubmit(f, title)) return;
     const k = f.dataset.kind, d = (f.elements.date && f.elements.date.value) || ui.scr.date || today();
     if (k === 'shared'){ const t = addTask({ title, status: 'shared', shared: true, assignee: f.elements.who.value }); if (t.assignee === state.sync.user.id) t.status = 'pool'; ui.refocus = 'form[data-kind="shared"] input'; save(); render(); toast('Shared'); return; }
     if (k === 'cap'){ addTask({ title, status: 'inbox' }); ui.refocus = f.classList.contains('dump-big') ? '.dump-big input' : '.cap input'; render(); toast('Tucked away in your brain dump'); }
@@ -1597,7 +1775,7 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
     delete p.app; delete p.exportedAt;
     try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (e) { toast('Could not save on this device'); return; }
     state = { tasks: [], anchors: DEF_ANCHORS(), fold: {}, cap: 180, layout: {}, v3: true, homeOrder: ['day', 'dump', 'cal', 'org'], templates: [], sync: null };
-    load(); render(); toast('Restored ' + state.tasks.length + ' tasks');
+    load(); ensureCats(); render(); toast('Restored ' + state.tasks.length + ' tasks');
   }
   document.addEventListener('click', async e => {
     const b = e.target.closest('[data-bk]'); if (!b || b.tagName === 'INPUT') return;
@@ -1750,9 +1928,371 @@ dialog::backdrop{background:rgba(3,6,10,.7);backdrop-filter:blur(3px)}
       <p class="muted small" style="margin-top:22px">Only items you share go to your NAS. Use the Share button on any task, or the share icon in your brain dump. <button type="button" class="btn sm ghost danger" data-act="sync-out">Disconnect this phone</button></p>`;
   }
   if (SYNC_ON()) setTimeout(() => syncNow(false), 300);
+
+  // ===================== v2: Now / Day / Life / Calendar =====================
+  const NCOL = { purple: '#A78BFA', green: '#34D399', orange: '#FB923C', teal: '#2DD4BF', blue: '#60A5FA', pink: '#F472B6', yellow: '#FACC15', grey: '#94A3B8' };
+  const sv = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+  const NI = {
+    moon: sv('<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'),
+    sun: sv('<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>'),
+    briefcase: sv('<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8.5 7V5.5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2V7M3 12.5h18"/>'),
+    dumbbell: sv('<path d="M6.5 7.5v9M9.5 6v12M14.5 6v12M17.5 7.5v9M9.5 12h5M3.5 10v4M20.5 10v4"/>'),
+    heart: sv('<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/>'),
+    rocket: sv('<path d="M13.5 5.5c2.5-2 5.5-2.2 6.5-1.5.7 1 .5 4-1.5 6.5L12 17l-5-5z"/><path d="M7 12 4 11.5l2.5-3h3.5M12 17l.5 3 3-2.5V14"/><circle cx="15.2" cy="8.8" r="1.4"/><path d="M6.5 17.5 4 20"/>'),
+    pulse: sv('<path d="M3 12h4l2.2-5.5 4.6 11 2.2-5.5H21"/>'),
+    pound: sv('<path d="M16.5 7A3.5 3.5 0 0 0 10 8.6V17M7 12h6.5M6.5 18h11"/>'),
+    house: sv('<path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"/>'),
+    repeat: sv('<path d="M17 3l3 3-3 3"/><path d="M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3"/><path d="M20 13v2a3 3 0 0 1-3 3H4"/>'),
+    book: sv('<path d="M5 5a2 2 0 0 1 2-2h11v15H7a2 2 0 0 0-2 2z"/><path d="M5 20a2 2 0 0 1 2-2h11v3H7"/>'),
+    cart: sv('<circle cx="9" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/><path d="M3 4h2.2l2.3 11h11l2-8H6.2"/>'),
+    users: sv('<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3c2.4-.4 4.5 1.1 5 4.2"/>'),
+    star: sv('<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>'),
+    paw: sv('<circle cx="6.5" cy="10" r="1.8"/><circle cx="10" cy="6" r="1.8"/><circle cx="14" cy="6" r="1.8"/><circle cx="17.5" cy="10" r="1.8"/><path d="M12 11c-2.6 0-5 3.6-5 6 0 1.8 1.6 2.5 3 2 1.2-.4 2.8-.4 4 0 1.4.5 3-.2 3-2 0-2.4-2.4-6-5-6z"/>'),
+    food: sv('<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M16 3c-1.8 1-3 3.5-3 6.5 0 1.4 1 2.5 3 2.5V21"/>'),
+    car: sv('<path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v2H3zM5 11h14"/><circle cx="7.5" cy="13.5" r=".6"/><circle cx="16.5" cy="13.5" r=".6"/>'),
+    dot: sv('<circle cx="12" cy="12" r="4.5" fill="currentColor" stroke="none"/>'),
+    today: I.cal, life: sv('<path d="M12 3v5M12 16v5M3 12h5M16 12h5M6 6l3 3M15 15l3 3M6 18l3-3M15 9l3-3"/>'),
+    now: sv('<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/>'),
+    day: sv('<path d="M8 5h12M8 12h12M8 19h12"/><circle cx="4" cy="5" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="19" r="1.2" fill="currentColor"/>'),
+    tree: sv('<rect x="3" y="3.5" width="7" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="4.5" rx="1.5"/><rect x="13" y="16.5" width="8" height="4.5" rx="1.5"/><path d="M6.5 8.5v10h6.5M6.5 12.3H13"/>'),
+    more: sv('<circle cx="5.5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="18.5" cy="12" r="1.6" fill="currentColor"/>'),
+    plus: sv('<path d="M12 5v14M5 12h14"/>'),
+    chev: sv('<path d="M6 9l6 6 6-6"/>')
+  };
+  const PICK_ICONS = ['moon', 'sun', 'briefcase', 'dumbbell', 'heart', 'pulse', 'rocket', 'house', 'pound', 'users', 'book', 'cart', 'food', 'car', 'paw', 'repeat', 'star', 'dot'];
+  function ensureCats(){
+    if (!Array.isArray(state.cats)) state.cats = [
+      { id: 'c-personal', name: 'Personal', icon: 'heart', color: NCOL.teal, parent: null },
+      { id: 'c-home', name: 'Home', icon: 'house', color: NCOL.yellow, parent: null },
+      { id: 'c-exercise', name: 'Exercise', icon: 'dumbbell', color: NCOL.orange, parent: null },
+      { id: 'c-health', name: 'Health', icon: 'pulse', color: NCOL.blue, parent: null },
+      { id: 'c-projects', name: 'Projects', icon: 'rocket', color: NCOL.pink, parent: null }
+    ];
+    if (!state.nopen || typeof state.nopen !== 'object') state.nopen = {};
+  }
+  const catById = id => (state.cats || []).find(c => c.id === id);
+  const aIcon = a => a.icon || (/sleep|bed|night/i.test(a.name) ? 'moon' : /work|job|office/i.test(a.name) ? 'briefcase' : /gym|exercise|run|train/i.test(a.name) ? 'dumbbell' : /morning/i.test(a.name) ? 'sun' : 'dot');
+  const aColor = a => a.ncolor || (/sleep|bed|night/i.test(a.name) ? NCOL.purple : /work|job|office/i.test(a.name) ? NCOL.green : /gym|exercise/i.test(a.name) ? NCOL.orange : a.color || NCOL.grey);
+  function nnode(id){
+    const a = anchorById(id); if (a) return { id: a.id, name: a.name, icon: aIcon(a), color: aColor(a), parent: null, anchor: a };
+    const c = catById(id); return c ? Object.assign({}, c, { color: c.color || NCOL.grey, icon: c.icon || 'dot' }) : null;
+  }
+  const nroots = () => state.anchors.map(a => nnode(a.id)).concat((state.cats || []).filter(c => !c.parent || !nnode(c.parent)).map(c => nnode(c.id)));
+  const nkids = id => (state.cats || []).filter(c => c.parent === id).map(c => nnode(c.id));
+  const ncatTasks = id => state.tasks.filter(t => t.cat === id && !t.anchorOf && (isOpen(t) || (t.doneAt && Date.now() - t.doneAt < 2 * 864e5)));
+  const nsub = id => [id].concat(...nkids(id).map(k => nsub(k.id)));
+  function npath(id){ const out = []; let n = nnode(id), g = 0; while (n && g++ < 40){ out.unshift(n); n = n.parent ? nnode(n.parent) : null; } return out; }
+  function tColor(t){ const n = t.cat && nnode(t.cat); if (n) return n.color; if (t.start != null){ const a = anchorAt(t.date || today(), t.start); if (a) return aColor(a); } return NCOL.grey; }
+  const ico = (k, c, cls) => `<span class="nx-ic${cls ? ' ' + cls : ''}" style="--c:${c}">${NI[k] || NI.dot}</span>`;
+  const daysLabel = a => a.days === 'weekdays' ? 'Weekdays' : a.days === 'weekends' ? 'Weekends' : 'Every day';
+
+  function dayModel(d){
+    const tasks = tasksOn(d).filter(t => t.start != null).sort((a, b) => a.start - b.start);
+    const runs = []; let h = 0;
+    while (h < 24){ const a = anchorAt(d, h * 60); let j = h + 1; while (j < 24 && anchorAt(d, j * 60) === a) j++; runs.push({ a, h0: h, h1: j }); h = j; }
+    const items = [];
+    runs.forEach(r => {
+      const inR = tasks.filter(t => t.start >= r.h0 * 60 && t.start < r.h1 * 60);
+      if (r.a){ items.push({ type: 'band', a: r.a, s: r.h0 * 60, e: r.h1 * 60, tasks: inR }); return; }
+      let fh = null;
+      for (let k = r.h0; k < r.h1; k++){
+        const ts = inR.filter(t => Math.floor(t.start / 60) === k);
+        if (ts.length){ if (fh != null){ items.push({ type: 'free', s: fh * 60, e: k * 60 }); fh = null; } ts.forEach(t => items.push({ type: 'task', t, s: t.start, e: t.start + flowDur(t) })); }
+        else if (fh == null) fh = k;
+      }
+      if (fh != null) items.push({ type: 'free', s: fh * 60, e: r.h1 * 60 });
+    });
+    return { items, any: tasksOn(d).filter(t => t.start == null) };
+  }
+
+  function ntRow(t, o){
+    o = o || {}; const done = t.status === 'done', m = [];
+    if (o.time && t.start != null) m.push(hm(t.start) + '–' + hm(t.start + flowDur(t)));
+    else if (t.dur) m.push(durLabel(t.dur));
+    if (o.cat && t.cat && nnode(t.cat)) m.push(esc(nnode(t.cat).name));
+    if (o.date && t.date && t.status === 'planned') m.push(esc(dayName(t.date)) + (t.start != null && !o.time ? ' ' + hm(t.start) : ''));
+    if (o.date && t.status === 'pool') m.push('Not scheduled');
+    if (t.subtasks.length) m.push(t.subtasks.filter(s => s.done).length + '/' + t.subtasks.length + ' steps');
+    const dl = dueLabel(t); if (dl && !done) m.push(`<span class="${dl.cls}">${esc(dl.text)}</span>`);
+    if (t.imp != null && t.imp >= 2 && !done) m.push(`<span style="color:${IMP[t.imp].c}">${IMP[t.imp].name}</span>`);
+    if (t.shared) m.push(`<span style="color:#FF8FB1">${esc(whoLabel(t.assignee, true))}</span>`);
+    return `<div class="nt${done ? ' done' : ''}" style="--c:${tColor(t)}"><button type="button" class="nchk${done ? ' on' : ''}" data-check="${t.id}" aria-label="${done ? 'Mark not done' : 'Mark done'}">${I.tick}</button>
+      <button type="button" class="nt-main" data-act="nx-task" data-id="${t.id}"><span class="nt-t">${esc(t.title)}</span>${m.length ? `<span class="nt-m">${m.join('<span>·</span>')}</span>` : ''}</button></div>`;
+  }
+
+  // ---------- Day timeline ----------
+  function nxDayScreen(){
+    const d = ui.scr.date || today(), td = today(), nm = d === td ? nowMin() : d < td ? 1e6 : -1;
+    const { items, any } = dayModel(d);
+    let strip = ''; for (let i = -1; i < 13; i++){ const x = addDays(td, i), dt = new Date(x + 'T00:00'); strip += `<button type="button" data-act="nx-date" data-date="${x}" aria-pressed="${x === d}"><small>${dt.toLocaleDateString(undefined, { weekday: 'short' })}</small><b>${dt.getDate()}</b></button>`; }
+    const st = it => it.e <= nm ? ' past' : it.s <= nm && nm < it.e ? ' now' : '';
+    const tcol = it => `<div class="tl-time"><b>${hm(it.s)}</b>${it.e - it.s > 60 || it.type === 'band' ? `<span>${hm(it.e)}</span>` : ''}${st(it) === ' now' ? `<div class="now-pill">${hm(nm)}</div>` : ''}</div>`;
+    const rows = items.map(it => {
+      if (it.type === 'free') return `<li class="tl-item tl-free${st(it)}">${tcol(it)}<div><button type="button" class="free" data-act="nx-add" data-date="${d}" data-h="${Math.max(Math.floor(it.s / 60), st(it) === ' now' ? Math.floor(nm / 60) : 0)}">Free${it.e - it.s > 60 ? ' until ' + hm(it.e) : ''} · + Add</button></div></li>`;
+      if (it.type === 'task') return `<li class="tl-item${st(it)}" style="--c:${tColor(it.t)}"><span class="tl-dot"></span>${tcol(it)}<div class="tl-task">${ntRow(it.t, { time: true, cat: true })}</div></li>`;
+      const a = it.a, c = aColor(a), key = d + '|' + a.id + '|' + it.s, open = !!state.nopen[key], h0 = it.s / 60, h1 = it.e / 60;
+      const doneN = it.tasks.filter(t => t.status === 'done').length;
+      let inner = '';
+      if (open){
+        let hrs = ''; for (let k = h0; k < h1; k++){ const ts = it.tasks.filter(t => Math.floor(t.start / 60) === k);
+          hrs += `<div class="bh${d === td && Math.floor(nm / 60) === k ? ' nowh' : ''}"><span>${pad(k)}:00</span><div>${ts.map(t => ntRow(t, { time: true })).join('')}<button type="button" class="add-here" data-act="nx-add" data-date="${d}" data-h="${k}" data-cat="${a.id}">+ Add at ${pad(k)}:00</button></div></div>`; }
+        inner = `<div class="band-hours">${hrs}</div>`;
+      } else if (it.tasks.length) inner = `<ul class="band-mini">${it.tasks.slice(0, 4).map(t => `<li class="${t.status === 'done' ? 'd' : ''}"><i></i>${esc(t.title)}</li>`).join('')}${it.tasks.length > 4 ? `<li>+${it.tasks.length - 4} more</li>` : ''}</ul>`;
+      return `<li class="tl-item${st(it)}" style="--c:${c}"><span class="tl-dot"></span>${tcol(it)}<div class="band${open ? ' open' : ''}">
+        <button type="button" class="band-head" data-act="nx-band" data-key="${key}" aria-expanded="${open}">${ico(aIcon(a), c)}<b>${esc(a.name)}</b><span class="rng">${durLabel(it.e - it.s)}${it.tasks.length ? ' · ' + doneN + '/' + it.tasks.length : ''}</span><span class="chev">${NI.chev}</span></button>${inner}</div></li>`;
+    }).join('');
+    return `<div class="nx"><div class="nx-top"><div><h1>${esc(dayName(d, true))}</h1><div class="sub">${d === td ? esc(new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })) : esc(new Date(d + 'T00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }))}</div></div><span class="grow"></span><button type="button" class="nx-btn pri" data-act="nx-add" data-date="${d}" data-h="${d === td ? Math.floor(nm / 60) : 9}">${NI.plus} Add</button></div>
+      <div class="nx-days">${strip}</div>
+      <ul class="tl">${rows}</ul>
+      <div class="nx-sec">Anytime ${esc(dayName(d).toLowerCase())}</div>
+      ${any.length ? any.map(t => ntRow(t, { cat: true })).join('') : '<div class="nx-empty">Nothing unscheduled for this day.</div>'}</div>`;
+  }
+
+  // ---------- Now / Next / Later ----------
+  function nxNowScreen(){
+    const d = today(), nm = nowMin(), { items, any } = dayModel(d);
+    const acts = [];
+    items.forEach(it => {
+      if (it.type === 'band'){ acts.push({ kind: 'band', it, s: it.s, e: it.e, c: aColor(it.a) }); it.tasks.forEach(t => acts.push({ kind: 'task', t, s: t.start, e: t.start + flowDur(t), c: tColor(t) })); }
+      else if (it.type === 'task') acts.push({ kind: 'task', t: it.t, s: it.s, e: it.e, c: tColor(it.t) });
+    });
+    const run = state.tasks.find(t => t.runningSince);
+    const cur = (run && { kind: 'task', t: run, s: run.start != null ? run.start : nm, e: run.start != null ? run.start + flowDur(run) : nm + flowDur(run), c: tColor(run) })
+      || acts.find(x => x.kind === 'task' && isOpen(x.t) && x.s <= nm && nm < x.e) || acts.find(x => x.kind === 'band' && x.s <= nm && nm < x.e) || null;
+    const up = acts.filter(x => x.s > nm && (x.kind !== 'task' || isOpen(x.t)) && !(cur && x.kind === 'task' && cur.kind === 'task' && x.t === cur.t)).sort((a, b) => a.s - b.s);
+    const next = up[0], later = up.slice(1);
+    const nameOf = x => x.kind === 'band' ? x.it.a.name : x.t.title;
+    const iconOf = x => x.kind === 'band' ? aIcon(x.it.a) : (x.t.cat && nnode(x.t.cat) ? nnode(x.t.cat).icon : 'dot');
+    const inMin = m => m < 60 ? m + ' min' : durLabel(Math.round(m / 5) * 5);
+    let curHTML;
+    if (cur){
+      const pct = Math.max(0, Math.min(100, (nm - cur.s) / Math.max(1, cur.e - cur.s) * 100));
+      let body = '';
+      if (cur.kind === 'band'){ const ts = cur.it.tasks.slice().sort((a, b) => isOpen(b) - isOpen(a)); body = ts.length ? ts.slice(0, 6).map(t => ntRow(t, { time: true })).join('') : `<button type="button" class="add-here" data-act="nx-add" data-date="${d}" data-h="${Math.floor(nm / 60)}" data-cat="${cur.it.a.id}">+ Add something to this ${esc(cur.it.a.name.toLowerCase())} time</button>`; }
+      else if (cur.t.subtasks.length) body = cur.t.subtasks.map(s => `<div class="nt" style="--c:${cur.c}"><button type="button" class="nchk${s.done ? ' on' : ''}" data-act="toggle-step" data-tid="${cur.t.id}" data-path="" data-sid="${s.id}" aria-label="Mark step done">${I.tick}</button><span class="nt-t" style="${s.done ? 'text-decoration:line-through;color:var(--nf)' : ''}">${esc(s.title)}</span></div>`).join('');
+      const go = cur.kind === 'task' ? `<button type="button" class="go" data-act="focus-mode" data-id="${cur.t.id}" aria-label="Focus on this">${I.play}</button>` : `<button type="button" class="go" data-act="nx-nav" data-s="day" aria-label="Open in day view">${I.fwd}</button>`;
+      curHTML = `<section class="ncard cur" style="--c:${cur.c}"><div class="lbl"><i></i>NOW · ${hm(cur.s)} – ${hm(cur.e)}</div>
+        <div class="ttl">${ico(iconOf(cur), cur.c, 'lg')}<div style="min-width:0"><h2${cur.kind === 'task' ? ` data-act="nx-task" data-id="${cur.t.id}" style="cursor:pointer"` : ''}>${esc(nameOf(cur))}</h2><p>${inMin(Math.max(0, cur.e - nm))} left</p></div>${go}</div>
+        <div class="nbar"><i style="width:${pct.toFixed(1)}%"></i></div><div class="nbar-l"><span>${hm(cur.s)}</span><span>${Math.round(pct)}%</span><span>${hm(cur.e)}</span></div>
+        ${body ? `<div style="margin-top:12px">${body}</div>` : ''}</section>`;
+    } else curHTML = `<section class="ncard cur" style="--c:${NCOL.teal}"><div class="lbl"><i></i>NOW · FREE TIME</div><div class="ttl">${ico('star', NCOL.teal, 'lg')}<div><h2>Nothing planned right now</h2><p>${next ? 'Free until ' + hm(next.s) : 'Free for the rest of today'}</p></div></div>
+      <div class="node-acts"><button type="button" class="nx-btn pri" data-act="pick">${I.dice} Pick something for me</button><button type="button" class="nx-btn" data-act="nx-add" data-date="${d}" data-h="${Math.floor(nm / 60)}">${NI.plus} Add now</button></div></section>`;
+    const nextHTML = next ? `<div class="nx-sec">NEXT</div><section class="ncard next" style="--c:${next.c}"><div class="ttl">${ico(iconOf(next), next.c, 'lg')}<div style="min-width:0"><h2 data-act="${next.kind === 'task' ? 'nx-task' : 'nx-nav'}" data-id="${next.kind === 'task' ? next.t.id : ''}" data-s="day" style="cursor:pointer">${esc(nameOf(next))}</h2><p>${hm(next.s)}, in ${inMin(next.s - nm)} · ${durLabel(next.e - next.s)}</p></div></div>
+      ${next.kind === 'band' && next.it.tasks.length ? `<div style="margin-top:8px">${next.it.tasks.filter(isOpen).slice(0, 3).map(t => ntRow(t, { time: true })).join('')}</div>` : ''}</section>` : '';
+    const laterHTML = later.length ? `<div class="nx-sec">LATER TODAY</div><ul class="later">${later.map((x, i) => `<li style="opacity:${Math.max(.45, 1 - i * .07)};--c:${x.c}"><span class="tm">${hm(x.s)}</span><button type="button" data-act="${x.kind === 'task' ? 'nx-task' : 'nx-nav'}" data-id="${x.kind === 'task' ? x.t.id : ''}" data-s="day">${ico(iconOf(x), x.c)}<span class="nt-t" style="font-weight:${x.kind === 'band' ? 700 : 500}">${esc(nameOf(x))}</span></button><span class="muted small">${durLabel(x.e - x.s)}</span></li>`).join('')}</ul>` : '';
+    const anyOpen = any.filter(isOpen);
+    return `<div class="nx"><div class="nx-top"><div><div class="now-clock">${hm(nm)}</div><div class="sub">${esc(new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }))}</div></div></div>
+      ${curHTML}${nextHTML}${laterHTML}
+      ${anyOpen.length ? `<div class="nx-sec">ANYTIME TODAY</div>${anyOpen.map(t => ntRow(t, { cat: true })).join('')}` : ''}
+      ${inbox().length ? `<div class="nx-sec">BRAIN DUMP</div><button type="button" class="subrow" data-act="goto" data-s="dump">${ico('book', '#FFB86B')}${inbox().length} ${inbox().length === 1 ? 'note' : 'notes'} to sort<em>›</em></button>` : ''}</div>`;
+  }
+
+  // ---------- Life tree ----------
+  function treeList(nodes){
+    return `<ul class="tree">${nodes.map(n => {
+      const ch = nkids(n.id), ts = ncatTasks(n.id), has = ch.length + ts.length, open = !!state.nopen[n.id], cnt = nsub(n.id).reduce((a, id) => a + ncatTasks(id).filter(isOpen).length, 0);
+      return `<li><div class="tr-row${ui.scr.id === n.id ? ' sel' : ''}">${has ? `<button type="button" class="tr-tw${open ? ' open' : ''}" data-act="nx-tw" data-id="${n.id}" aria-label="${open ? 'Collapse' : 'Expand'} ${esc(n.name)}">${I.fwd}</button>` : '<span class="tr-sp"></span>'}
+        <button type="button" class="tr-name" data-act="nx-node" data-id="${n.id}">${ico(n.icon, n.color)}<span>${esc(n.name)}</span>${n.anchor ? `<small>${rangeLabel(n.anchor)}</small>` : ''}${cnt ? `<em>${cnt}</em>` : ''}</button></div>
+        ${open && has ? (ch.length ? treeList(ch) : '') + (ts.length ? taskTree(ts, n.color) : '') : ''}</li>`;
+    }).join('')}</ul>`;
+  }
+  function taskTree(ts, c){
+    return `<ul class="tree">${ts.map(t => `<li><div class="tr-row task${t.status === 'done' ? ' d' : ''}" style="--c:${c}">${t.subtasks.length ? `<button type="button" class="tr-tw${state.nopen[t.id] ? ' open' : ''}" data-act="nx-tw" data-id="${t.id}" aria-label="Show steps">${I.fwd}</button>` : '<span class="tr-sp"></span>'}<button type="button" class="tr-name" data-act="nx-task" data-id="${t.id}"><i></i><span>${esc(t.title)}</span></button></div>${t.subtasks.length && state.nopen[t.id] ? stepTree(t.subtasks, c, t.id) : ''}</li>`).join('')}</ul>`;
+  }
+  function stepTree(ss, c, tid){
+    return `<ul class="tree">${ss.map(s => `<li><div class="tr-row task${s.done ? ' d' : ''}" style="--c:${c}"><span class="tr-sp"></span><button type="button" class="tr-name" data-act="nx-task" data-id="${tid}"><i></i><span>${esc(s.title)}</span></button></div>${(s.subtasks || []).length ? stepTree(s.subtasks, c, tid) : ''}</li>`).join('')}</ul>`;
+  }
+  function treePane(){
+    const td = today(), { items } = dayModel(td), tOpen = !!state.nopen.__today;
+    const todayKids = items.filter(i => i.type !== 'free').map(i => i.type === 'band'
+      ? `<li><div class="tr-row"><span class="tr-sp"></span><button type="button" class="tr-name" data-act="nx-node" data-id="${i.a.id}">${ico(aIcon(i.a), aColor(i.a))}<span>${esc(i.a.name)}</span><small>${hm(i.s)}–${hm(i.e)}</small></button></div></li>`
+      : `<li><div class="tr-row task${i.t.status === 'done' ? ' d' : ''}" style="--c:${tColor(i.t)}"><span class="tr-sp"></span><button type="button" class="tr-name" data-act="nx-task" data-id="${i.t.id}"><i></i><span>${esc(i.t.title)}</span><small>${hm(i.s)}</small></button></div></li>`).join('');
+    return `<div class="tree-pane"><div class="tr-root">${ico('life', '#5EE1FF')}My Life</div>
+      <ul class="tree"><li><div class="tr-row"><button type="button" class="tr-tw${tOpen ? ' open' : ''}" data-act="nx-tw" data-id="__today" aria-label="Show today">${I.fwd}</button><button type="button" class="tr-name" data-act="nx-nav" data-s="day">${ico('today', '#5EE1FF')}<span>Today</span><small>${esc(new Date().toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }))}</small></button></div>${tOpen ? `<ul class="tree">${todayKids}</ul>` : ''}</li></ul>
+      ${treeList(nroots())}
+      <div class="tree-foot"><button type="button" class="nx-btn" data-act="nx-catnew">${NI.plus} New category</button><button type="button" class="nx-btn ghost" data-act="goto" data-s="dump">${I.brain} Brain dump${inbox().length ? ' (' + inbox().length + ')' : ''}</button></div></div>`;
+  }
+  function nodeView(id){
+    const n = nnode(id); if (!n) return '';
+    const p = npath(id), ch = nkids(id), ts = ncatTasks(id), all = nsub(id).flatMap(ncatTasks), dn = all.filter(t => t.status === 'done').length;
+    const crumbs = `<nav class="crumbs" aria-label="Location"><button type="button" data-act="nx-nav" data-s="life">My Life</button>${p.map((x, i) => `<span>›</span>${i === p.length - 1 ? `<span class="cur">${esc(x.name)}</span>` : `<button type="button" data-act="nx-node" data-id="${x.id}">${esc(x.name)}</button>`}`).join('')}</nav>`;
+    let todayBlock = '';
+    if (n.anchor){ const b = dayModel(today()).items.filter(i => i.type === 'band' && i.a.id === n.id); const tt = b.flatMap(i => i.tasks);
+      todayBlock = `<div class="nx-sec">TODAY IN ${esc(n.name.toUpperCase())}${b.length ? ' · ' + b.map(i => hm(i.s) + '–' + hm(i.e)).join(', ') : ' · not today'}</div>${tt.length ? tt.map(t => ntRow(t, { time: true })).join('') : `<div class="nx-empty">Nothing scheduled in it today.</div>`}${b.length ? `<button type="button" class="add-here" data-act="nx-add" data-date="${today()}" data-h="${b[0].s / 60}" data-cat="${n.id}">+ Add to ${esc(n.name)} today</button>` : ''}`; }
+    const open = ts.filter(isOpen), done = ts.filter(t => !isOpen(t));
+    return `<div class="node">${crumbs}
+      <div class="node-head">${ico(n.icon, n.color, 'lg')}<div style="min-width:0"><h1>${esc(n.name)}</h1><div class="sub">${n.anchor ? daysLabel(n.anchor) + ', ' + rangeLabel(n.anchor) : all.length ? (all.length - dn) + ' open' : 'Empty so far'}</div></div></div>
+      ${all.length ? `<div class="nbar" style="--c:${n.color}"><i style="width:${(dn / all.length * 100).toFixed(1)}%"></i></div><div class="nbar-l"><span>${dn} of ${all.length} done</span><span></span></div>` : ''}
+      <div class="node-acts"><button type="button" class="nx-btn" data-act="nx-catnew" data-parent="${n.id}">${NI.plus} Subcategory</button><button type="button" class="nx-btn" data-act="nx-catedit" data-id="${n.id}">${I.edit} Edit</button>${n.anchor ? `<button type="button" class="nx-btn" data-act="shape">${I.sliders} Times</button>` : ''}</div>
+      ${todayBlock}
+      ${ch.length ? `<div class="nx-sec">INSIDE</div><div class="sublist">${ch.map(c => { const k = nsub(c.id).reduce((a, x) => a + ncatTasks(x).filter(isOpen).length, 0); return `<button type="button" class="subrow" data-act="nx-node" data-id="${c.id}">${ico(c.icon, c.color)}${esc(c.name)}<em>${k ? k + ' open' : ''} ›</em></button>`; }).join('')}</div>` : ''}
+      <div class="nx-sec">TASKS</div>
+      ${open.length ? open.map(t => ntRow(t, { date: true })).join('') : '<div class="nx-empty">No tasks here yet.</div>'}
+      <form class="nx-addf" data-kind="nx-cattask" data-cat="${n.id}"><input type="text" name="title" placeholder="Add a task to ${esc(n.name)}" aria-label="New task in ${esc(n.name)}" autocomplete="off"><button class="nx-btn pri" type="submit">Add</button></form>
+      ${done.length ? `<div class="nx-sec">RECENTLY DONE</div>${done.map(t => ntRow(t)).join('')}` : ''}</div>`;
+  }
+  function nxLifeScreen(){
+    const id = ui.scr.id && nnode(ui.scr.id) ? ui.scr.id : null;
+    if (!id) return `<div class="nx"><div class="nx-top"><div><h1>Life</h1><div class="sub">Everything, organised by area. Tap a name to open it.</div></div></div><div class="life">${treePane()}</div></div>`;
+    return `<div class="nx"><div class="life two">${treePane()}${nodeView(id)}</div></div>`;
+  }
+
+  // ---------- Calendar ----------
+  function nxCalScreen(){
+    const ym = curMonth(), [y, m] = ym.split('-').map(Number), td = today(), sel = ui.calSel || td;
+    const first = new Date(y, m - 1, 1), off = (first.getDay() + 6) % 7, n = new Date(y, m, 0).getDate();
+    let cells = ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map(x => `<span class="wd">${x}</span>`).join('');
+    for (let i = 0; i < off; i++) cells += '<span></span>';
+    for (let dn = 1; dn <= n; dn++){
+      const d = `${y}-${pad(m)}-${pad(dn)}`, ts = tasksOn(d), due = state.tasks.some(t => isOpen(t) && t.due === d);
+      const cols = [...new Set(ts.map(tColor))].slice(0, 3); if (due) cols.push('#FFB86B');
+      cells += `<button type="button" class="${d === td ? 'today' : ''}${d < td ? ' past' : ''}" data-act="nx-calsel" data-date="${d}" aria-pressed="${d === sel}" aria-label="${esc(dayName(d, true))}${ts.length ? ', ' + ts.length + ' tasks' : ''}">${dn}<span class="dots">${cols.slice(0, 4).map(c => `<i style="--c:${c}"></i>`).join('')}</span></button>`;
+    }
+    const { items, any } = dayModel(sel);
+    const agenda = items.filter(i => i.type !== 'free').map(i => i.type === 'band'
+      ? `<li style="--c:${aColor(i.a)}"><span class="tm">${hm(i.s)}</span><button type="button" data-act="nx-date" data-date="${sel}">${ico(aIcon(i.a), aColor(i.a))}<span class="nt-t" style="font-weight:700">${esc(i.a.name)}</span></button><span class="muted small">${i.tasks.length ? i.tasks.length + ' inside' : durLabel(i.e - i.s)}</span></li>`
+      : `<li style="--c:${tColor(i.t)}"><span class="tm">${hm(i.s)}</span><button type="button" data-act="nx-task" data-id="${i.t.id}">${ico('dot', tColor(i.t))}<span class="nt-t" style="${i.t.status === 'done' ? 'text-decoration:line-through;color:var(--nf)' : ''}">${esc(i.t.title)}</span></button></li>`).join('');
+    const dues = state.tasks.filter(t => isOpen(t) && t.due === sel);
+    return `<div class="nx"><div class="nx-top"><div><h1>Calendar</h1></div><span class="grow"></span><button type="button" class="nx-btn" data-act="nx-caltoday">Today</button></div>
+      <section class="ncal"><div class="ncal-h"><button type="button" class="icon-btn" data-act="cal-nav" data-dir="-1" aria-label="Previous month">${I.back}</button><b>${esc(first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }))}</b><button type="button" class="icon-btn" data-act="cal-nav" data-dir="1" aria-label="Next month">${I.fwd}</button></div><div class="ncal-g">${cells}</div></section>
+      <div class="nx-top" style="margin-top:22px"><div><h1 style="font-size:22px">${esc(dayName(sel, true))}</h1></div><span class="grow"></span><button type="button" class="nx-btn" data-act="nx-date" data-date="${sel}">Open day ›</button></div>
+      ${dues.length ? `<div class="nx-sec">DUE</div>${dues.map(t => ntRow(t, { cat: true })).join('')}` : ''}
+      <ul class="later">${agenda || '<li class="nx-empty">Nothing scheduled.</li>'}</ul>
+      ${any.length ? `<div class="nx-sec">ANYTIME</div>${any.map(t => ntRow(t)).join('')}` : ''}</div>`;
+  }
+
+  // ---------- nav, sheets, actions ----------
+  const NX_SCREENS = { now: nxNowScreen, day: nxDayScreen, life: nxLifeScreen, cal: nxCalScreen };
+  function nxNav(){
+    const s = ui.scr.s, cur = k => (k === 'more' ? !NX_SCREENS[s] : s === k) ? ' aria-current="page"' : '';
+    const b = (k, ic, l) => `<button type="button" data-act="nx-nav" data-s="${k}"${cur(k)}>${ic}<span>${l}</span></button>`;
+    return b('now', NI.now, 'Now') + b('day', NI.day, 'Day') + b('life', NI.tree, 'Life') + b('cal', I.cal, 'Calendar') + b('more', NI.more, 'More');
+  }
+  function catOptions(sel){
+    const out = []; const walk = (ns, dep) => ns.forEach(n => { out.push(`<option value="${n.id}"${n.id === sel ? ' selected' : ''}>${' '.repeat(dep)}${esc(n.name)}</option>`); walk(nkids(n.id), dep + 1); });
+    walk(nroots(), 0); return `<option value="">No category</option>` + out.join('');
+  }
+  const hourOptions = sel => `<option value="">Anytime</option>` + Array.from({ length: 24 }, (_, h) => `<option value="${h}"${sel === h ? ' selected' : ''}>${pad(h)}:00</option>`).join('');
+  const durOptions = sel => `<option value="">No length</option>` + [5, 10, 15, 30, 45, 60, 90, 120, 180, 240].map(m => `<option value="${m}"${sel === m ? ' selected' : ''}>${durLabel(m)}</option>`).join('');
+  function nxSheet(id){ ui.nsheet = id; fillSheet(); const dl = $('#nxDlg'); if (!dl.open) dl.showModal(); }
+  function fillSheet(){
+    const t = get(ui.nsheet), dl = $('#nxDlg'); if (!t){ if (dl.open) dl.close(); return; }
+    const done = t.status === 'done', h = t.start != null ? Math.floor(t.start / 60) : null, ae = document.activeElement;
+    if (ae && dl.contains(ae) && (ae.tagName === 'TEXTAREA' || ae.dataset.nf)) return;
+    $('#nxBox').innerHTML = `<div class="sh-head"><button type="button" class="nchk big${done ? ' on' : ''}" style="--c:${tColor(t)}" data-check="${t.id}" aria-label="${done ? 'Mark not done' : 'Mark done'}">${I.tick}</button><h3>${esc(t.title)}</h3><button type="button" class="icon-btn" data-act="edit" data-id="${t.id}" aria-label="Rename">${I.edit}</button><button type="button" class="icon-btn" data-act="nx-close" aria-label="Close">${I.x}</button></div>
+      <div class="sh-grid">
+        <label>Day<input type="date" data-nf="date" value="${t.status === 'planned' || t.status === 'done' ? (t.date || today()) : ''}"></label>
+        <label>Time<select data-nf="hour">${hourOptions(t.status === 'planned' || t.status === 'done' ? h : null)}</select></label>
+        <label>Length<select data-nf="dur">${durOptions(t.dur)}</select></label>
+        <label>Category<select data-nf="cat">${catOptions(t.cat)}</select></label>
+      </div>
+      <div class="chips" style="margin-bottom:12px">${(() => { const dl2 = dueLabel(t); return (dl2 ? `<span class="chip ${dl2.cls}">${esc(dl2.text)}</span>` : '') + (t.imp != null ? `<span class="chip" style="--c:${IMP[t.imp].c}"><i></i>${IMP[t.imp].name}</span>` : ''); })()}<button type="button" class="btn sm" data-act="wiz-open" data-id="${t.id}">Due date, importance, order…</button></div>
+      ${stepsCardHTML(t, [])}
+      <section class="card" style="margin-top:12px"><h2 style="margin-bottom:10px">Notes</h2><textarea id="notes" data-id="${t.id}" placeholder="Anything you'll want to remember">${esc(t.notes)}</textarea></section>
+      <div class="sh-acts">${done ? '' : `<button type="button" class="nx-btn pri" data-act="nx-focus" data-id="${t.id}">${I.timer} Focus mode</button>`}<button type="button" class="nx-btn" data-act="share-open" data-id="${t.id}">${I.share} ${t.shared ? 'Sharing' : 'Share'}</button><button type="button" class="nx-btn" data-act="nx-full" data-id="${t.id}">Full page</button><span class="grow"></span><button type="button" class="nx-btn ghost" style="color:#FF7A88" data-act="nx-del" data-id="${t.id}">Delete</button></div>`;
+  }
+  function nxQuick(o){
+    ui.nquick = o; const box = $('#nxAddBox'), d = o.date || today();
+    box.innerHTML = `<form data-kind="nx-quick"><div class="sh-head"><h3>Add a task</h3><button type="button" class="icon-btn" data-act="nx-qclose" aria-label="Close">${I.x}</button></div>
+      <input type="text" name="title" class="search" style="font-size:17px;padding:13px 14px;margin-bottom:12px" placeholder="What needs doing?" autocomplete="off" aria-label="Task">
+      <div class="sh-grid"><label>Day<input type="date" name="date" value="${d}"></label><label>Time<select name="hour">${hourOptions(o.h == null ? null : +o.h)}</select></label>
+      <label>Length<select name="dur">${durOptions(null)}</select></label><label>Category<select name="cat">${catOptions(o.cat || '')}</select></label></div>
+      <div class="sh-acts"><span class="grow"></span><button type="submit" class="nx-btn pri">Add</button></div></form>`;
+    $('#nxAdd').showModal(); setTimeout(() => { const i = box.querySelector('input[name=title]'); if (i) i.focus(); }, 50);
+  }
+  function nxCatDlg(o){
+    ui.ncat = o; const box = $('#nxCatBox'), n = o.id ? nnode(o.id) : null, isA = n && n.anchor;
+    const col = o.color, icn = o.icon;
+    box.innerHTML = `<form data-kind="nx-cat"><div class="sh-head"><h3>${o.id ? 'Edit ' + esc(n.name) : o.parent ? 'New inside ' + esc(nnode(o.parent).name) : 'New category'}</h3><button type="button" class="icon-btn" data-act="nx-cclose" aria-label="Close">${I.x}</button></div>
+      <input type="text" name="title" class="search" style="font-size:17px;padding:13px 14px;margin-bottom:14px" value="${esc(o.name || '')}" placeholder="Name, for example Client projects" autocomplete="off" aria-label="Name">
+      <div class="muted small" style="font-weight:700">Icon</div><div class="icgrid" style="--c:${col}">${PICK_ICONS.map(k => `<button type="button" data-act="nx-cicon" data-v="${k}" aria-pressed="${k === icn}" aria-label="${k}">${NI[k]}</button>`).join('')}</div>
+      <div class="muted small" style="font-weight:700">Colour</div><div class="colgrid">${Object.entries(NCOL).map(([k, c]) => `<button type="button" style="--c:${c}" data-act="nx-ccol" data-v="${c}" aria-pressed="${c === col}" aria-label="${k}"></button>`).join('')}</div>
+      <div class="sh-acts">${o.id && !isA ? `<button type="button" class="nx-btn ghost" style="color:#FF7A88" data-act="nx-cdel">Delete</button>` : ''}<span class="grow"></span><button type="submit" class="nx-btn pri">Save</button></div></form>`;
+    if (!$('#nxCat').open){ $('#nxCat').showModal(); setTimeout(() => { const i = box.querySelector('input[name=title]'); if (i && !o.id) i.focus(); }, 50); }
+  }
+  function nxAct(a, ds){
+    switch (a){
+      case 'nx-nav': {
+        if (ds.s === 'more'){ ui.hist = []; ui.scr = { s: 'home' }; }
+        else { ui.hist = []; ui.scr = ds.s === 'day' ? { s: 'day', date: today() } : { s: ds.s }; }
+        ui.addAt = null; if ($('#nxDlg').open) $('#nxDlg').close(); render(); window.scrollTo(0, 0); return true;
+      }
+      case 'nx-date': ui.hist = []; ui.scr = { s: 'day', date: ds.date }; render(); window.scrollTo(0, 0); return true;
+      case 'nx-band': state.nopen[ds.key] = !state.nopen[ds.key]; save(); render(); return true;
+      case 'nx-tw': state.nopen[ds.id] = !state.nopen[ds.id]; save(); render(); return true;
+      case 'nx-node': if (ui.scr.s === 'life' && ui.scr.id) ui.hist.push(ui.scr); ui.scr = { s: 'life', id: ds.id }; state.nopen[ds.id] = true; let p = nnode(ds.id); while (p && p.parent){ state.nopen[p.parent] = true; p = nnode(p.parent); } render(); window.scrollTo(0, 0); return true;
+      case 'nx-task': if (ds.id) nxSheet(ds.id); return true;
+      case 'nx-close': $('#nxDlg').close(); render(); return true;
+      case 'nx-full': $('#nxDlg').close(); go({ s: 'focus', id: ds.id }); return true;
+      case 'nx-focus': $('#nxDlg').close(); go({ s: 'timer', id: ds.id }); return true;
+      case 'nx-del': { const x = get(ds.id); if (!x) return true; const show = undoable('Deleted ' + x.title); state.tasks = state.tasks.filter(t => t.id !== ds.id); state.tasks.forEach(t => { t.deps = t.deps.filter(y => y !== ds.id); }); $('#nxDlg').close(); save(); render(); show(); return true; }
+      case 'nx-add': nxQuick({ date: ds.date, h: ds.h === undefined || ds.h === '' ? null : ds.h, cat: ds.cat || (ui.scr.s === 'life' ? ui.scr.id : '') }); return true;
+      case 'nx-qclose': $('#nxAdd').close(); return true;
+      case 'nx-catnew': nxCatDlg({ id: null, parent: ds.parent || null, name: '', icon: ds.parent ? nnode(ds.parent).icon : 'star', color: ds.parent ? nnode(ds.parent).color : NCOL.teal }); return true;
+      case 'nx-catedit': { const n = nnode(ds.id); if (n) nxCatDlg({ id: n.id, parent: n.parent, name: n.name, icon: n.icon, color: n.color }); return true; }
+      case 'nx-cicon': ui.ncat.icon = ds.v; ui.ncat.name = ($('#nxCatBox input[name=title]') || {}).value || ui.ncat.name; nxCatDlg(ui.ncat); return true;
+      case 'nx-ccol': ui.ncat.color = ds.v; ui.ncat.name = ($('#nxCatBox input[name=title]') || {}).value || ui.ncat.name; nxCatDlg(ui.ncat); return true;
+      case 'nx-cclose': $('#nxCat').close(); return true;
+      case 'nx-cdel': {
+        const c = catById(ui.ncat.id); if (!c) return true;
+        const snap = JSON.stringify({ cats: state.cats, tasks: state.tasks.map(t => [t.id, t.cat]) });
+        nkids(c.id).forEach(k => { catById(k.id).parent = c.parent || null; });
+        state.tasks.forEach(t => { if (t.cat === c.id) t.cat = c.parent || ''; });
+        state.cats = state.cats.filter(x => x.id !== c.id); $('#nxCat').close();
+        if (ui.scr.s === 'life' && ui.scr.id === c.id) ui.scr = { s: 'life', id: c.parent || null };
+        save(); render(); toast('Deleted ' + c.name + '. Its tasks moved up a level.', ['Undo', () => { const o = JSON.parse(snap); state.cats = o.cats; o.tasks.forEach(([id, cat]) => { const t = get(id); if (t) t.cat = cat; }); save(); render(); }]);
+        return true;
+      }
+      case 'nx-calsel': ui.calSel = ds.date; render(); return true;
+      case 'nx-caltoday': ui.calMonth = today().slice(0, 7); ui.calSel = today(); render(); return true;
+    }
+    return false;
+  }
+  function nxSubmit(f, title){
+    const k = f.dataset.kind;
+    if (k === 'nx-quick'){
+      const d = f.elements.date.value || today(), hv = f.elements.hour.value, dur = f.elements.dur.value ? +f.elements.dur.value : null, cat = f.elements.cat.value;
+      const t = addTask({ title, status: 'planned', date: d, start: hv === '' ? null : +hv * 60, dur, cat: anchorById(cat) ? '' : cat });
+      if (t && hv === '' && !f.elements.date.value) t.status = 'pool';
+      $('#nxAdd').close(); save(); render(); toast(hv === '' ? 'Added' : `Added at ${pad(+hv)}:00`); return true;
+    }
+    if (k === 'nx-cattask'){
+      const cat = f.dataset.cat; addTask({ title, status: 'pool', cat: anchorById(cat) ? '' : cat });
+      ui.refocus = 'form[data-kind="nx-cattask"] input'; save(); render(); return true;
+    }
+    if (k === 'nx-cat'){
+      const o = ui.ncat;
+      if (o.id){ const a = anchorById(o.id); if (a){ a.name = title; a.icon = o.icon; a.ncolor = o.color; } else Object.assign(catById(o.id), { name: title, icon: o.icon, color: o.color }); }
+      else { const id = 'c' + uid(); state.cats.push({ id, name: title, icon: o.icon, color: o.color, parent: o.parent || null }); if (o.parent) state.nopen[o.parent] = true; }
+      $('#nxCat').close(); save(); render(); return true;
+    }
+    return false;
+  }
+  document.addEventListener('change', e => {
+    const f = e.target.closest('[data-nf]'); if (!f) return; const t = get(ui.nsheet); if (!t) return;
+    const v = f.value, k = f.dataset.nf;
+    if (k === 'cat') t.cat = anchorById(v) ? '' : v;
+    if (k === 'dur'){ t.dur = v ? +v : null; t.remaining = null; }
+    if (k === 'date' || k === 'hour'){
+      const dIn = $('#nxBox [data-nf=date]').value, hIn = $('#nxBox [data-nf=hour]').value;
+      if (!dIn && hIn === ''){ if (t.status === 'planned'){ t.status = 'pool'; t.start = null; } }
+      else { t.date = dIn || today(); t.start = hIn === '' ? null : +hIn * 60; if (t.status !== 'done') t.status = 'planned'; }
+    }
+    f.blur(); save(); render(); fillSheet();
+  });
+  document.addEventListener('click', e => { const dl = e.target.closest('#nxAdd, #nxCat'); if (dl && e.target === dl) dl.close(); });
+  $('#nxDlg').addEventListener('close', () => { ui.nsheet = null; });
+  let nxLastMin = -1;
+  setInterval(() => {
+    if (!NX_SCREENS[ui.scr.s] || ui.scr.s === 'life' || ui.scr.s === 'cal' || document.querySelector('dialog[open]')) return;
+    const ae = document.activeElement; if (ae && /INPUT|TEXTAREA|SELECT/.test(ae.tagName)) return;
+    const m = nowMin(); if (m !== nxLastMin){ nxLastMin = m; render(); }
+  }, 15000);
+
+  ensureCats();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-  load(); render();
+  load(); ensureCats(); render();
 })();
 </script>
 </body>
