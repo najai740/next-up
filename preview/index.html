@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -631,6 +631,8 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
 .sh-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .sh-grid label{display:grid;gap:5px;font-size:12.5px;color:var(--muted);font-weight:700}
 .sh-grid input,.sh-grid select{width:100%;border:1px solid var(--s3);background:rgba(11,15,20,.55);color:var(--ink);border-radius:12px;padding:10px;font-size:16px;min-height:44px}
+.dpick{position:relative;display:flex;align-items:center;min-height:44px;border:1px solid var(--s3);background:rgba(11,15,20,.55);color:var(--ink);border-radius:12px;padding:10px;font-size:16px;font-weight:600}
+.dpick input{position:absolute;inset:0;opacity:0;width:100%;height:100%;min-height:0!important;padding:0!important;border:0!important}
 .sh-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .icgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px;margin:6px 0 14px}
 .icgrid button{height:44px;border-radius:12px;border:1px solid var(--s3);background:transparent;color:var(--c);display:grid;place-items:center}
@@ -680,7 +682,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
 
 <dialog id="shapeDlg">
   <div class="dlg">
-    <h3>Day shape</h3>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><h3 style="margin:0;flex:1">Day shape</h3><button class="btn" type="button" data-act="close-shape">Done</button></div>
     <p class="muted" style="margin:-8px 0 14px;font-size:14px">The constants that hold your day together. Slide them to fit.</p>
     <div id="shapeBody"></div>
     <div class="actions"><button class="btn primary" type="button" data-act="close-shape">Done</button></div>
@@ -753,15 +755,15 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
   function dayName(d, long){
     const td = today();
     if (d === td) return 'Today'; if (d === addDays(td, 1)) return 'Tomorrow'; if (d === addDays(td, -1)) return 'Yesterday';
-    return new Date(d + 'T00:00').toLocaleDateString(undefined, long ? { weekday: 'long', day: 'numeric', month: 'long' } : { weekday: 'short', day: 'numeric', month: 'short' });
+    return new Date(d + 'T00:00').toLocaleDateString('en-GB', long ? { weekday: 'long', day: 'numeric', month: 'long' } : { weekday: 'short', day: 'numeric', month: 'short' });
   }
   function dueLabel(t){
     if (!t.due) return null; const n = daysUntil(t.due);
     if (n < 0) return { text: 'Overdue by ' + (-n) + (n === -1 ? ' day' : ' days'), cls: 'late' };
     if (n === 0) return { text: 'Due today', cls: 'warn' };
     if (n === 1) return { text: 'Due tomorrow', cls: 'warn' };
-    if (n < 7) return { text: 'Due ' + new Date(t.due + 'T00:00').toLocaleDateString(undefined, { weekday: 'long' }), cls: '' };
-    return { text: 'Due ' + new Date(t.due + 'T00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' }), cls: '' };
+    if (n < 7) return { text: 'Due ' + new Date(t.due + 'T00:00').toLocaleDateString('en-GB', { weekday: 'long' }), cls: '' };
+    return { text: 'Due ' + new Date(t.due + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), cls: '' };
   }
 
   // ---------- storage ----------
@@ -872,6 +874,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
   }
   let toastT;
   function toast(msg, action){
+    { const dl = [...document.querySelectorAll('dialog[open]')].pop(), tEl = document.getElementById('toast'); if (tEl.parentNode !== (dl || document.body)) (dl || document.body).appendChild(tEl); }
     $('#toastMsg').textContent = msg; const b = $('#toastBtn');
     if (action){ b.hidden = false; b.textContent = action[0]; b.onclick = () => { action[1](); $('#toast').classList.remove('show'); }; } else b.hidden = true;
     $('#toast').classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => $('#toast').classList.remove('show'), action ? 8000 : 3800);
@@ -968,7 +971,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
   function monthGrid(big){
     const ym = curMonth(), [y, m] = ym.split('-').map(Number), td = today();
     const first = new Date(y, m - 1, 1), off = (first.getDay() + 6) % 7, n = new Date(y, m, 0).getDate();
-    const title = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    const title = first.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
     const wd = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(x => `<span class="cwd">${big ? x : x[0]}</span>`).join('');
     let cells = ''; for (let i = 0; i < off; i++) cells += '<span class="cday blank"></span>';
     for (let dn = 1; dn <= n; dn++){
@@ -998,7 +1001,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
     };
     const order = state.homeOrder.filter(k => tabs[k]).concat(Object.keys(tabs).filter(k => !state.homeOrder.includes(k)));
     return `<div class="home-min">
-      <header class="home-top"><p class="muted">${esc(new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }))}</p></header>
+      <header class="home-top"><p class="muted">${esc(new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}</p></header>
       <ul class="htabs" id="homeList">${order.map(k => tabs[k]).join('')}</ul></div>`;
   }
   function countSteps(arr){ return (arr || []).reduce((a, s) => a + 1 + countSteps(s.subtasks), 0); }
@@ -1174,14 +1177,14 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
   }
   function dayScreen(){
     const d = ui.scr.date, td = today();
-    let strip = ''; for (let i = -1; i < 7; i++){ const x = addDays(td, i), dt = new Date(x + 'T00:00'); strip += `<button type="button" data-act="set-date" data-date="${x}" aria-pressed="${x === d}"><small>${dt.toLocaleDateString(undefined, { weekday: 'short' })}</small><b>${dt.getDate()}</b></button>`; }
+    let strip = ''; for (let i = -1; i < 7; i++){ const x = addDays(td, i), dt = new Date(x + 'T00:00'); strip += `<button type="button" data-act="set-date" data-date="${x}" aria-pressed="${x === d}"><small>${dt.toLocaleDateString('en-GB', { weekday: 'short' })}</small><b>${dt.getDate()}</b></button>`; }
     const pool = poolTasks().sort((a, b) => score(b) - score(a));
     const items = hourItems(d), sel = ui.sel && get(ui.sel);
     const nh = new Date().getHours(), nm = nowMin();
     let nowIdx = -1, nowFrac = 0;
     items.forEach((it, i) => { if (it.type !== 'head' && nh >= it.h && nh < it.h + it.n){ nowIdx = i; nowFrac = (nm - it.h * 60) / (it.n * 60); } });
     const free = items.filter(it => it.type === 'e').length, used = tasksOn(d).length;
-    return `<div class="phead"><div><h1>${esc(dayName(d, true))}</h1><div class="sub">${d === td ? esc(new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })) + ', ' : ''}${used} ${used === 1 ? 'task' : 'tasks'}, ${free} free ${free === 1 ? 'hour' : 'hours'}</div></div><span class="grow"></span>
+    return `<div class="phead"><div><h1>${esc(dayName(d, true))}</h1><div class="sub">${d === td ? esc(new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })) + ', ' : ''}${used} ${used === 1 ? 'task' : 'tasks'}, ${free} free ${free === 1 ? 'hour' : 'hours'}</div></div><span class="grow"></span>
 </div>
     <div class="day-grid one">
       <div class="col2"><section class="card hours-card"><div class="hours">
@@ -1435,7 +1438,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
     for (let i = depth + 1; i < path.length; i++) ui.hist.push({ s: 'step', id: tid, path: path.slice(0, i) });
     ui.addAt = null; ui.scr = { s: 'step', id: tid, path }; render(); window.scrollTo(0, 0);
   }
-  function back(){ ui.addAt = null; ui.scr = ui.hist.pop() || { s: 'home' }; render(); window.scrollTo(0, 0); }
+  function back(){ ui.addAt = null; ui.scr = ui.hist.pop() || { s: 'now' }; render(); window.scrollTo(0, 0); }
   function focusTarget(){
     const r = state.tasks.find(t => t.runningSince); if (r) return r.id;
     if (ui.scr.s === 'focus' && ui.scr.id && get(ui.scr.id)) return ui.scr.id;
@@ -1500,7 +1503,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
   function renderShape(){
     const dayOpt = a => ['all', 'weekdays', 'weekends'].map(v => `<option value="${v}"${a.days === v ? ' selected' : ''}>${v === 'all' ? 'Every day' : v === 'weekdays' ? 'Weekdays' : 'Weekends'}</option>`).join('');
     $('#shapeBody').innerHTML = state.anchors.map(a => `<div class="anchor" style="--c:${a.color}" data-aid="${a.id}">
-      <div class="arow"><span class="dotc" style="--c:${a.color}"></span><input class="aname" data-f="name" value="${esc(a.name)}" aria-label="Constant name"><button type="button" class="icon-btn" data-act="del-anchor" data-aid="${a.id}" aria-label="Remove ${esc(a.name)}">${I.x}</button></div>
+      <div class="arow"><span class="dotc" style="--c:${a.color}"></span><input class="aname" data-f="name" value="${esc(a.name)}" aria-label="Constant name"><button type="button" class="btn sm ghost danger" data-act="del-anchor" data-aid="${a.id}" aria-label="Remove ${esc(a.name)} from every day">Remove</button></div>
       <div class="awhen" data-lbl>${rangeLabel(a)} <span class="muted">(${durLabel(a.len)})</span></div>
       <label class="rngf"><span>Starts</span><input type="range" min="0" max="1425" step="15" value="${a.start}" data-f="start"></label>
       <label class="rngf"><span>Lasts</span><input type="range" min="15" max="960" step="15" value="${a.len}" data-f="len"></label>
@@ -1683,7 +1686,14 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
       case 'shape': renderShape(); $('#shapeDlg').showModal(); break;
       case 'close-shape': $('#shapeDlg').close(); save(); break;
       case 'add-anchor': resetLayouts(); state.anchors.push({ id: uid(), name: 'New constant', start: 12 * 60, len: 60, days: 'all', color: '#4FD1A5', fold: false }); save(); renderShape(); render(); break;
-      case 'del-anchor': resetLayouts(); state.anchors = state.anchors.filter(x => x.id !== ds.aid); save(); renderShape(); render(); break;
+      case 'del-anchor': {
+        const a = anchorById(ds.aid); if (!a) break;
+        if (el.dataset.sure !== '1'){ el.dataset.sure = '1'; el.textContent = 'Tap again to remove ' + a.name + ' from every day'; clearTimeout(el._t); el._t = setTimeout(() => { el.dataset.sure = ''; el.textContent = 'Remove'; }, 5000); break; }
+        const snap = JSON.stringify({ anchors: state.anchors, layout: state.layout });
+        resetLayouts(); state.anchors = state.anchors.filter(x => x.id !== ds.aid); save(); renderShape(); render();
+        toast('Removed ' + a.name + ' from every day', ['Undo', () => { const o = JSON.parse(snap); state.anchors = o.anchors; state.layout = o.layout; save(); renderShape(); render(); }]);
+        break;
+      }
       case 'anchor-color': { const x = state.anchors.find(y => y.id === ds.aid); if (x){ x.color = ds.c; save(); renderShape(); render(); } break; }
       case 'plan-week': planWeek(); break;
       case 'wiz-open': openWiz(ds.id); break;
@@ -2024,7 +2034,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
   function nxDayScreen(){
     const d = ui.scr.date || today(), td = today(), nm = d === td ? nowMin() : d < td ? 1e6 : -1;
     const { items, any } = dayModel(d);
-    let strip = ''; for (let i = -1; i < 13; i++){ const x = addDays(td, i), dt = new Date(x + 'T00:00'); strip += `<button type="button" data-act="nx-date" data-date="${x}" aria-pressed="${x === d}"><small>${dt.toLocaleDateString(undefined, { weekday: 'short' })}</small><b>${dt.getDate()}</b></button>`; }
+    let strip = ''; for (let i = -1; i < 13; i++){ const x = addDays(td, i), dt = new Date(x + 'T00:00'); strip += `<button type="button" data-act="nx-date" data-date="${x}" aria-pressed="${x === d}"><small>${dt.toLocaleDateString('en-GB', { weekday: 'short' })}</small><b>${dt.getDate()}</b></button>`; }
     const st = it => it.e <= nm ? ' past' : it.s <= nm && nm < it.e ? ' now' : '';
     const tcol = it => `<div class="tl-time"><b>${hm(it.s)}</b>${it.e - it.s > 60 || it.type === 'band' ? `<span>${hm(it.e)}</span>` : ''}${st(it) === ' now' ? `<div class="now-pill">${hm(nm)}</div>` : ''}</div>`;
     const rows = items.map(it => {
@@ -2041,7 +2051,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
       return `<li class="tl-item${st(it)}" style="--c:${c}"><span class="tl-dot"></span>${tcol(it)}<div class="band${open ? ' open' : ''}">
         <button type="button" class="band-head" data-act="nx-band" data-key="${key}" aria-expanded="${open}">${ico(aIcon(a), c)}<b>${esc(a.name)}</b><span class="rng">${durLabel(it.e - it.s)}${it.tasks.length ? ' · ' + doneN + '/' + it.tasks.length : ''}</span><span class="chev">${NI.chev}</span></button>${inner}</div></li>`;
     }).join('');
-    return `<div class="nx"><div class="nx-top"><div><h1>${esc(dayName(d, true))}</h1><div class="sub">${d === td ? esc(new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })) : esc(new Date(d + 'T00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }))}</div></div><span class="grow"></span><button type="button" class="nx-btn pri" data-act="nx-add" data-date="${d}" data-h="${d === td ? Math.floor(nm / 60) : 9}">${NI.plus} Add</button></div>
+    return `<div class="nx"><div class="nx-top"><div><h1>${esc(dayName(d, true))}</h1><div class="sub">${d === td ? esc(new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })) : esc(new Date(d + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }))}</div></div><span class="grow"></span><button type="button" class="nx-btn pri" data-act="nx-add" data-date="${d}" data-h="${d === td ? Math.floor(nm / 60) : 9}">${NI.plus} Add</button></div>
       <div class="nx-days">${strip}</div>
       <ul class="tl">${rows}</ul>
       <div class="nx-sec">Anytime ${esc(dayName(d).toLowerCase())}</div>
@@ -2081,7 +2091,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
       ${next.kind === 'band' && next.it.tasks.length ? `<div style="margin-top:8px">${next.it.tasks.filter(isOpen).slice(0, 3).map(t => ntRow(t, { time: true })).join('')}</div>` : ''}</section>` : '';
     const laterHTML = later.length ? `<div class="nx-sec">LATER TODAY</div><ul class="later">${later.map((x, i) => `<li style="opacity:${Math.max(.45, 1 - i * .07)};--c:${x.c}"><span class="tm">${hm(x.s)}</span><button type="button" data-act="${x.kind === 'task' ? 'nx-task' : 'nx-nav'}" data-id="${x.kind === 'task' ? x.t.id : ''}" data-s="day">${ico(iconOf(x), x.c)}<span class="nt-t" style="font-weight:${x.kind === 'band' ? 700 : 500}">${esc(nameOf(x))}</span></button><span class="muted small">${durLabel(x.e - x.s)}</span></li>`).join('')}</ul>` : '';
     const anyOpen = any.filter(isOpen);
-    return `<div class="nx"><div class="nx-top"><div><div class="now-clock">${hm(nm)}</div><div class="sub">${esc(new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }))}</div></div></div>
+    return `<div class="nx"><div class="nx-top"><div><div class="now-clock">${hm(nm)}</div><div class="sub">${esc(new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}</div></div></div>
       ${curHTML}${nextHTML}${laterHTML}
       ${anyOpen.length ? `<div class="nx-sec">ANYTIME TODAY</div>${anyOpen.map(t => ntRow(t, { cat: true })).join('')}` : ''}
       ${inbox().length ? `<div class="nx-sec">BRAIN DUMP</div><button type="button" class="subrow" data-act="goto" data-s="dump">${ico('book', '#FFB86B')}${inbox().length} ${inbox().length === 1 ? 'note' : 'notes'} to sort<em>›</em></button>` : ''}</div>`;
@@ -2108,7 +2118,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
       ? `<li><div class="tr-row"><span class="tr-sp"></span><button type="button" class="tr-name" data-act="nx-node" data-id="${i.a.id}">${ico(aIcon(i.a), aColor(i.a))}<span>${esc(i.a.name)}</span><small>${hm(i.s)}–${hm(i.e)}</small></button></div></li>`
       : `<li><div class="tr-row task${i.t.status === 'done' ? ' d' : ''}" style="--c:${tColor(i.t)}"><span class="tr-sp"></span><button type="button" class="tr-name" data-act="nx-task" data-id="${i.t.id}"><i></i><span>${esc(i.t.title)}</span><small>${hm(i.s)}</small></button></div></li>`).join('');
     return `<div class="tree-pane"><div class="tr-root">${ico('life', '#5EE1FF')}My Life</div>
-      <ul class="tree"><li><div class="tr-row"><button type="button" class="tr-tw${tOpen ? ' open' : ''}" data-act="nx-tw" data-id="__today" aria-label="Show today">${I.fwd}</button><button type="button" class="tr-name" data-act="nx-nav" data-s="day">${ico('today', '#5EE1FF')}<span>Today</span><small>${esc(new Date().toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }))}</small></button></div>${tOpen ? `<ul class="tree">${todayKids}</ul>` : ''}</li></ul>
+      <ul class="tree"><li><div class="tr-row"><button type="button" class="tr-tw${tOpen ? ' open' : ''}" data-act="nx-tw" data-id="__today" aria-label="Show today">${I.fwd}</button><button type="button" class="tr-name" data-act="nx-nav" data-s="day">${ico('today', '#5EE1FF')}<span>Today</span><small>${esc(new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }))}</small></button></div>${tOpen ? `<ul class="tree">${todayKids}</ul>` : ''}</li></ul>
       ${treeList(nroots())}
       <div class="tree-foot"><button type="button" class="nx-btn" data-act="nx-catnew">${NI.plus} New category</button><button type="button" class="nx-btn ghost" data-act="goto" data-s="dump">${I.brain} Brain dump${inbox().length ? ' (' + inbox().length + ')' : ''}</button></div></div>`;
   }
@@ -2154,7 +2164,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
       : `<li style="--c:${tColor(i.t)}"><span class="tm">${hm(i.s)}</span><button type="button" data-act="nx-task" data-id="${i.t.id}">${ico('dot', tColor(i.t))}<span class="nt-t" style="${i.t.status === 'done' ? 'text-decoration:line-through;color:var(--nf)' : ''}">${esc(i.t.title)}</span></button></li>`).join('');
     const dues = state.tasks.filter(t => isOpen(t) && t.due === sel);
     return `<div class="nx"><div class="nx-top"><div><h1>Calendar</h1></div><span class="grow"></span><button type="button" class="nx-btn" data-act="nx-caltoday">Today</button></div>
-      <section class="ncal"><div class="ncal-h"><button type="button" class="icon-btn" data-act="cal-nav" data-dir="-1" aria-label="Previous month">${I.back}</button><b>${esc(first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }))}</b><button type="button" class="icon-btn" data-act="cal-nav" data-dir="1" aria-label="Next month">${I.fwd}</button></div><div class="ncal-g">${cells}</div></section>
+      <section class="ncal"><div class="ncal-h"><button type="button" class="icon-btn" data-act="cal-nav" data-dir="-1" aria-label="Previous month">${I.back}</button><b>${esc(first.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }))}</b><button type="button" class="icon-btn" data-act="cal-nav" data-dir="1" aria-label="Next month">${I.fwd}</button></div><div class="ncal-g">${cells}</div></section>
       <div class="nx-top" style="margin-top:22px"><div><h1 style="font-size:22px">${esc(dayName(sel, true))}</h1></div><span class="grow"></span><button type="button" class="nx-btn" data-act="nx-date" data-date="${sel}">Open day ›</button></div>
       ${dues.length ? `<div class="nx-sec">DUE</div>${dues.map(t => ntRow(t, { cat: true })).join('')}` : ''}
       <ul class="later">${agenda || '<li class="nx-empty">Nothing scheduled.</li>'}</ul>
@@ -2181,7 +2191,7 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
     if (ae && dl.contains(ae) && (ae.tagName === 'TEXTAREA' || ae.dataset.nf)) return;
     $('#nxBox').innerHTML = `<div class="sh-head"><button type="button" class="nchk big${done ? ' on' : ''}" style="--c:${tColor(t)}" data-check="${t.id}" aria-label="${done ? 'Mark not done' : 'Mark done'}">${I.tick}</button><h3>${esc(t.title)}</h3><button type="button" class="icon-btn" data-act="edit" data-id="${t.id}" aria-label="Rename">${I.edit}</button><button type="button" class="icon-btn" data-act="nx-close" aria-label="Close">${I.x}</button></div>
       <div class="sh-grid">
-        <label>Day<input type="date" data-nf="date" value="${t.status === 'planned' || t.status === 'done' ? (t.date || today()) : ''}"></label>
+        <label>Day${ukPick('data-nf="date"', t.status === 'planned' || t.status === 'done' ? (t.date || today()) : '')}</label>
         <label>Time<select data-nf="hour">${hourOptions(t.status === 'planned' || t.status === 'done' ? h : null)}</select></label>
         <label>Length<select data-nf="dur">${durOptions(t.dur)}</select></label>
         <label>Category<select data-nf="cat">${catOptions(t.cat)}</select></label>
@@ -2191,11 +2201,14 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
       <section class="card" style="margin-top:12px"><h2 style="margin-bottom:10px">Notes</h2><textarea id="notes" data-id="${t.id}" placeholder="Anything you'll want to remember">${esc(t.notes)}</textarea></section>
       <div class="sh-acts">${done ? '' : `<button type="button" class="nx-btn pri" data-act="nx-focus" data-id="${t.id}">${I.timer} Focus mode</button>`}<button type="button" class="nx-btn" data-act="share-open" data-id="${t.id}">${I.share} ${t.shared ? 'Sharing' : 'Share'}</button><button type="button" class="nx-btn" data-act="nx-full" data-id="${t.id}">Full page</button><span class="grow"></span><button type="button" class="nx-btn ghost" style="color:#FF7A88" data-act="nx-del" data-id="${t.id}">Delete</button></div>`;
   }
+  const ukDate = d => d ? new Date(d + 'T00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set';
+  const ukPick = (attr, v) => `<span class="dpick"><span class="dpv">${ukDate(v)}</span><input type="date" ${attr} value="${v}" aria-label="Day"></span>`;
+  document.addEventListener('input', e => { if (e.target.matches('.dpick input')){ const s = e.target.parentNode.querySelector('.dpv'); if (s) s.textContent = ukDate(e.target.value); } });
   function nxQuick(o){
     ui.nquick = o; const box = $('#nxAddBox'), d = o.date || today();
     box.innerHTML = `<form data-kind="nx-quick"><div class="sh-head"><h3>Add a task</h3><button type="button" class="icon-btn" data-act="nx-qclose" aria-label="Close">${I.x}</button></div>
       <input type="text" name="title" class="search" style="font-size:17px;padding:13px 14px;margin-bottom:12px" placeholder="What needs doing?" autocomplete="off" aria-label="Task">
-      <div class="sh-grid"><label>Day<input type="date" name="date" value="${d}"></label><label>Time<select name="hour">${hourOptions(o.h == null ? null : +o.h)}</select></label>
+      <div class="sh-grid"><label>Day${ukPick('name="date"', d)}</label><label>Time<select name="hour">${hourOptions(o.h == null ? null : +o.h)}</select></label>
       <label>Length<select name="dur">${durOptions(null)}</select></label><label>Category<select name="cat">${catOptions(o.cat || '')}</select></label></div>
       <div class="sh-acts"><span class="grow"></span><button type="submit" class="nx-btn pri">Add</button></div></form>`;
     $('#nxAdd').showModal(); setTimeout(() => { const i = box.querySelector('input[name=title]'); if (i) i.focus(); }, 50);
@@ -2217,10 +2230,10 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
         else { ui.hist = []; ui.scr = ds.s === 'day' ? { s: 'day', date: today() } : { s: ds.s }; }
         ui.addAt = null; if ($('#nxDlg').open) $('#nxDlg').close(); render(); window.scrollTo(0, 0); return true;
       }
-      case 'nx-date': ui.hist = []; ui.scr = { s: 'day', date: ds.date }; render(); window.scrollTo(0, 0); return true;
+      case 'nx-date': if (ui.scr.s !== 'day') ui.hist.push(ui.scr); ui.scr = { s: 'day', date: ds.date }; render(); window.scrollTo(0, 0); return true;
       case 'nx-band': state.nopen[ds.key] = !state.nopen[ds.key]; save(); render(); return true;
       case 'nx-tw': state.nopen[ds.id] = !state.nopen[ds.id]; save(); render(); return true;
-      case 'nx-node': if (ui.scr.s === 'life' && ui.scr.id) ui.hist.push(ui.scr); ui.scr = { s: 'life', id: ds.id }; state.nopen[ds.id] = true; let p = nnode(ds.id); while (p && p.parent){ state.nopen[p.parent] = true; p = nnode(p.parent); } render(); window.scrollTo(0, 0); return true;
+      case 'nx-node': if (!(ui.scr.s === 'life' && ui.scr.id === ds.id)) ui.hist.push(ui.scr); ui.scr = { s: 'life', id: ds.id }; state.nopen[ds.id] = true; let p = nnode(ds.id); while (p && p.parent){ state.nopen[p.parent] = true; p = nnode(p.parent); } render(); window.scrollTo(0, 0); return true;
       case 'nx-task': if (ds.id) nxSheet(ds.id); return true;
       case 'nx-close': $('#nxDlg').close(); render(); return true;
       case 'nx-full': $('#nxDlg').close(); go({ s: 'focus', id: ds.id }); return true;
@@ -2296,6 +2309,19 @@ dialog.nxs{width:min(620px,calc(100vw - 16px))}
   load(); ensureCats(); render();
   document.body.insertAdjacentHTML('afterbegin', '<div style="position:sticky;top:0;z-index:30;background:#FFB86B;color:#1a1206;font-weight:700;font-size:13px;padding:7px 12px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap">Preview: a copy of your tasks. Changes here don\'t affect your real app. <button type="button" id="pvReset" style="border:1px solid #1a1206;background:transparent;border-radius:8px;padding:2px 8px;font-weight:700">Reset copy</button></div>');
   document.getElementById('pvReset').onclick = () => { localStorage.removeItem(KEY); location.reload(); };
+  // Phone back button/gesture: step back inside the app instead of closing it.
+  try { history.replaceState({ nxBase: 1 }, ''); history.pushState({ nxTop: 1 }, ''); } catch (e) {}
+  window.addEventListener('popstate', () => {
+    const open = [...document.querySelectorAll('dialog[open]')].pop();
+    let handled = true;
+    if (open){ open.close(); if (open.id === 'wizDlg' || open.id === 'nxDlg') render(); }
+    else if (ui.hist.length) back();
+    else if (ui.scr.s === 'life' && ui.scr.id){ ui.scr = { s: 'life' }; render(); window.scrollTo(0, 0); }
+    else if (ui.scr.s !== 'now'){ ui.scr = { s: 'now' }; render(); window.scrollTo(0, 0); }
+    else handled = false;
+    if (handled) try { history.pushState({ nxTop: 1 }, ''); } catch (e) {}
+    else history.back();
+  });
 })();
 </script>
 </body>
