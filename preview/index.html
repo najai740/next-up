@@ -478,7 +478,30 @@ body.nxon .toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
 :root{--n1:#0E1520;--n2:#141D2B;--n3:#1B2636;--nl:rgba(148,163,184,.14);--nt:#E6EDF5;--nm:#8C9BB0;--nf:#5B6B80;--na:#5EE1FF}
 .nx{max-width:980px;margin:0 auto}
 .nx h1{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:0;line-height:1.1}
-.nx-top{display:flex;align-items:flex-end;gap:12px;margin:4px 0 18px;flex-wrap:wrap}
+.nx-top{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;margin:4px 0 18px}
+.nx-top .sub{margin-top:0}
+.nx-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.nx-hd{display:flex;align-items:center;justify-content:center;gap:10px}
+.node-head{justify-content:center;text-align:center}.node-acts{justify-content:center}.crumbs{justify-content:center}
+.toptabs{display:flex;gap:3px;background:var(--n1);border:1px solid var(--nl);border-radius:14px;padding:4px;margin:0 auto 20px;max-width:560px;overflow-x:auto;scrollbar-width:none}
+.toptabs::-webkit-scrollbar{display:none}
+.toptabs button{flex:1;border:none;background:none;color:var(--nm);font-weight:700;font-size:14px;padding:9px 8px;border-radius:10px;white-space:nowrap;min-height:40px}
+.toptabs button[aria-selected="true"]{background:var(--n3);color:var(--nt);box-shadow:inset 0 0 0 1px rgba(94,225,255,.35)}
+.toptabs em{font-style:normal;font-size:11.5px;background:#FFB86B;color:#1a1206;border-radius:999px;padding:0 6px;margin-left:2px}
+.xlist.wk>.xr.band{margin-top:4px;border-top:1px solid var(--nl);border-radius:0}
+.xlist.wk>.xr.band:first-child{border-top:none}
+.xr.past .lb{color:var(--nm)}
+.ygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.ym{border:1px solid var(--nl);background:var(--n1);border-radius:16px;padding:12px;color:var(--nt);text-align:left;display:grid;gap:8px}
+.ym.cur{border-color:var(--na)}
+.ym b{font-size:14px}
+.ymg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.ymg i{aspect-ratio:1;border-radius:3px;background:rgba(148,163,184,.10)}
+.ymg i.on{background:#5EE1FF;opacity:.85}
+.ymg i.past{opacity:.45}
+.ymg i.td{outline:1.5px solid #fff}
+body[data-scr="org"] .phead,body[data-scr="dump"] .phead,body[data-scr="shared"] .phead{flex-direction:column;align-items:center;text-align:center}
+body[data-scr="org"] .phead .grow,body[data-scr="dump"] .phead .grow,body[data-scr="shared"] .phead .grow{display:none}
 .nx-top .sub{color:var(--nm);font-size:14px;margin-top:4px}
 .nx-ic{display:inline-grid;place-items:center;width:22px;height:22px;flex:none;color:var(--c)}
 .nx-ic svg{width:18px;height:18px}
@@ -1369,12 +1392,13 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
   let sorts = [];
   function render(){
     const s = ui.scr.s; let html = '';
-    const label = x => x.s === 'home' ? 'Home' : x.s === 'day' ? 'Day planner' + (x.date && x.date !== today() ? ' (' + dayName(x.date) + ')' : '') : x.s === 'dump' ? 'Brain dump' : x.s === 'cal' ? 'Calendar' : x.s === 'org' ? 'Organiser' : x.s === 'shared' ? 'Shared' : x.s === 'timer' ? 'Focus mode' : x.s === 'step' ? ((nodeAt(get(x.id), x.path || []) || {}).title || 'Step') : (x.id && get(x.id) ? get(x.id).title : 'Focus');
+    const label = x => x.s === 'now' ? 'Now' : x.s === 'week' ? 'Week' : x.s === 'year' ? 'Year' : x.s === 'life' ? 'Life' : x.s === 'home' ? 'Home' : x.s === 'day' ? 'Day planner' + (x.date && x.date !== today() ? ' (' + dayName(x.date) + ')' : '') : x.s === 'dump' ? 'Brain dump' : x.s === 'cal' ? 'Month' : x.s === 'org' ? 'Organiser' : x.s === 'shared' ? 'Shared' : x.s === 'timer' ? 'Focus mode' : x.s === 'step' ? ((nodeAt(get(x.id), x.path || []) || {}).title || 'Step') : (x.id && get(x.id) ? get(x.id).title : 'Focus');
     const path = ui.hist.concat([ui.scr]);
     const crumbs = (path[0].s === 'home' ? '' : `<button type="button" class="crumb" data-act="home">Home</button><span class="csep">\\</span>`) +
       path.map((x, i) => i === path.length - 1 ? `<span class="crumb cur">${esc(label(x))}</span>` : `<button type="button" class="crumb" data-act="crumb" data-i="${i}">${esc(label(x))}</button><span class="csep">\\</span>`).join('');
     const navbar = `<div class="navbar"><button type="button" class="btn sm" data-act="back">${I.back} Back</button><nav class="crumbs-bar" aria-label="You are here">${I.home}${crumbs}</nav></div>`;
-    if (NX_SCREENS[s]) html = NX_SCREENS[s](); else if (s === 'home') html = homeScreen(); else if (s === 'day') html = navbar + dayScreen(); else if (s === 'dump') html = navbar + dumpScreen(); else if (s === 'cal') html = navbar + calScreen(); else if (s === 'org') html = navbar + orgScreen(); else if (s === 'shared') html = navbar + sharedScreen(); else if (s === 'timer') html = navbar + timerScreen(); else if (s === 'step') html = navbar + stepScreen(); else html = navbar + focusScreen();
+    if (s === 'home'){ ui.scr = { s: 'org' }; return render(); }
+    if (NX_SCREENS[s]) html = nxTabs(s) + NX_SCREENS[s](); else if (s === 'dump') html = nxTabs(s) + dumpScreen(); else if (s === 'org') html = nxTabs(s) + orgScreen(); else if (s === 'shared') html = nxTabs(s) + sharedScreen(); else if (s === 'day') html = navbar + dayScreen(); else if (s === 'dump') html = navbar + dumpScreen(); else if (s === 'cal') html = navbar + calScreen(); else if (s === 'org') html = navbar + orgScreen(); else if (s === 'shared') html = navbar + sharedScreen(); else if (s === 'timer') html = navbar + timerScreen(); else if (s === 'step') html = navbar + stepScreen(); else html = navbar + focusScreen();
     const app = $('#app'), key = JSON.stringify(ui.scr);
     app.innerHTML = `<div class="${app.dataset.key !== key ? 'screen' : ''}">${html}</div>`; app.dataset.key = key;
     if (!state.tasks.some(t => t.runningSince)) document.title = 'Next Up v2';
@@ -2030,7 +2054,7 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
   const segOptions = (d, sel) => `<option value="">Anytime that day</option>` + daySegs(d).map(g => `<option value="${g.s}"${g.s === sel ? ' selected' : ''}>${esc(g.name)} · ${hm(g.s)}–${hm(g.e)}</option>`).join('');
 
   // ---------- tree rows (one indented +/- structure everywhere) ----------
-  const isOpenK = (k, def) => { const st = /^(now|cal):/.test(k) ? ui.xopen : state.nopen; return st[k] == null ? !!def : !!st[k]; };
+  const isOpenK = (k, def) => { const st = /^(now|cal|wk):/.test(k) ? ui.xopen : state.nopen; return st[k] == null ? !!def : !!st[k]; };
   function xrow(o){
     const tog = o.tk ? `<button type="button" class="xt" data-act="xtog" data-tk="${o.tk}" data-def="${o.def ? 1 : 0}" aria-expanded="${!!o.open}" aria-label="${o.open ? 'Collapse' : 'Expand'}">${o.open ? MINUS : PLUS}</button>` : '<span class="xt"></span>';
     return `<li class="xr${o.cls || ''}" data-k="${o.k}"${o.ref ? ` data-dref="${o.ref}"` : ''}${o.ctx ? ` data-dctx="${o.ctx}"` : ''}${o.into ? ' data-into="1"' : ''}${o.nodrag ? ' data-nodrag="1"' : ''} style="--d:${o.depth || 0};--c:${o.color || NCOL.grey}">${tog}${o.check || ''}${o.icon ? ico(o.icon, o.color) : ''}<button type="button" class="xl" ${o.act || ''}><span class="lb">${o.label}</span>${o.meta ? `<small>${o.meta}</small>` : ''}${o.count ? `<em>${o.count}</em>` : ''}</button>${o.tail || ''}</li>`;
@@ -2098,7 +2122,7 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
     const laterHTML = lf ? `<ul class="xlist">${lf.html}${lf.open ? later.map(x => segRows(x, 1, M, false)).join('') : ''}</ul>` : '';
     const anyOpen = any.filter(isOpen), af = anyOpen.length ? folderRow('now:any', 'Anytime today', anyOpen.length, '#7C8BA0') : null;
     const anyHTML = af ? `<ul class="xlist">${af.html}${af.open ? anyOpen.map(t => taskRows(t, 1, 'any:' + d, M)).join('') : ''}</ul>` : '';
-    const dump = inbox().length ? `<ul class="xlist">${xrow({ k: 'dump', depth: 0, icon: 'book', color: '#FFB86B', label: 'Brain dump', count: inbox().length + ' to sort', nodrag: 1, act: 'data-act="goto" data-s="dump"' })}</ul>` : '';
+    const dump = `<div class="nx-sec">BRAIN DUMP</div><form class="nx-addf" data-kind="cap" style="margin-top:0"><input type="text" name="title" placeholder="Note it, then forget it" aria-label="Add to brain dump" autocomplete="off"><button class="nx-btn" type="submit">Add</button></form>${inbox().length ? `<ul class="xlist">${xrow({ k: 'dump', depth: 0, icon: 'book', color: '#FFB86B', label: inbox().length + (inbox().length === 1 ? ' note' : ' notes') + ' to sort', nodrag: 1, act: 'data-act="nx-nav" data-s="dump"' })}</ul>` : ''}`;
     return `<div class="nx"><div class="nx-top"><div><div class="now-clock">${hm(nm)}</div><div class="sub">${esc(new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}</div></div></div>
       ${card}${nextHTML}<div class="nx-gap"></div>${laterHTML}${anyHTML}${dump}</div>`;
   }
@@ -2114,8 +2138,8 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
     }).join('');
     const anyRows = xrow({ k: 'a:' + d, depth: 0, ref: 'a:' + d, into: 1, nodrag: 1, icon: 'free', color: '#7C8BA0', cls: ' band', label: 'Anytime ' + esc(dayName(d).toLowerCase()), count: any.length || '', act: '' })
       + any.map(t => taskRows(t, 1, 'any:' + d, M)).join('') + `<li class="xr add" style="--d:1"><span class="xt"></span><button type="button" class="xl addl" data-act="nx-add" data-date="${d}" data-s="">+ Add without a time</button></li>`;
-    return `<div class="nx"><div class="nx-top"><div><h1>${esc(dayName(d, true))}</h1><div class="sub">${esc(new Date(d + 'T00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}</div></div><span class="grow"></span>
-      <button type="button" class="nx-btn" data-act="shape">${I.sliders} Themes</button><button type="button" class="nx-btn pri" data-act="nx-add" data-date="${d}" data-s="${d === td ? segOf(d, nm).s : ''}">${NI.plus} Add</button></div>
+    return `<div class="nx"><div class="nx-top"><h1>${esc(dayName(d, true))}</h1><div class="sub">${esc(new Date(d + 'T00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}</div>
+      <div class="nx-acts"><button type="button" class="nx-btn" data-act="shape">${I.sliders} Themes</button><button type="button" class="nx-btn pri" data-act="nx-add" data-date="${d}" data-s="${d === td ? segOf(d, nm).s : ''}">${NI.plus} Add</button></div></div>
       <div class="nx-days">${strip}</div>
       <ul class="tl">${rows}</ul>
       <div class="tband anyb"><ul class="xlist">${anyRows}</ul></div>
@@ -2165,22 +2189,63 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
       cells += `<button type="button" class="${d === td ? 'today' : ''}${d < td ? ' past' : ''}" data-act="nx-calsel" data-date="${d}" aria-pressed="${d === sel}" aria-label="${esc(dayName(d, true))}${ts.length ? ', ' + ts.length + ' tasks' : ''}">${dn}<span class="dots">${cols.slice(0, 4).map(c => `<i style="--c:${c}"></i>`).join('')}</span></button>`;
     }
     const { segs, any } = dayModel(sel), M = { mode: 'cal', p: 'cal:' }, dues = state.tasks.filter(t => isOpen(t) && t.due === sel);
-    return `<div class="nx"><div class="nx-top"><div><h1>Calendar</h1></div><span class="grow"></span><button type="button" class="nx-btn" data-act="nx-caltoday">Today</button></div>
-      <section class="ncal"><div class="ncal-h"><button type="button" class="icon-btn" data-act="cal-nav" data-dir="-1" aria-label="Previous month">${I.back}</button><b>${esc(first.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }))}</b><button type="button" class="icon-btn" data-act="cal-nav" data-dir="1" aria-label="Next month">${I.fwd}</button></div><div class="ncal-g">${cells}</div></section>
-      <div class="nx-top" style="margin-top:22px"><div><h1 style="font-size:22px">${esc(dayName(sel, true))}</h1></div><span class="grow"></span><button type="button" class="nx-btn" data-act="nx-date" data-date="${sel}">Open day ›</button></div>
+    return `<div class="nx"><div class="nx-top"><div class="nx-hd"><button type="button" class="icon-btn" data-act="cal-nav" data-dir="-1" aria-label="Previous month">${I.back}</button><h1>${esc(first.toLocaleDateString('en-GB', { month: 'long' }))}</h1><button type="button" class="icon-btn" data-act="cal-nav" data-dir="1" aria-label="Next month">${I.fwd}</button></div><div class="sub">${y}</div>
+      ${ym !== td.slice(0, 7) ? `<div class="nx-acts"><button type="button" class="nx-btn" data-act="nx-caltoday">Back to this month</button></div>` : ''}</div>
+      <section class="ncal"><div class="ncal-g">${cells}</div></section>
+      <div class="nx-top" style="margin-top:22px"><h1 style="font-size:22px">${esc(dayName(sel, true))}</h1><div class="nx-acts"><button type="button" class="nx-btn" data-act="nx-date" data-date="${sel}">Open day ›</button></div></div>
       ${dues.length ? `<div class="nx-sec">DUE</div><ul class="xlist">${dues.map(t => taskRows(t, 0, '', M)).join('')}</ul>` : ''}
       <ul class="xlist">${segs.filter(g => g.a || g.tasks.length).map(g => segRows(g, 0, M, false)).join('')}${any.length ? any.map(t => taskRows(t, 0, 'any:' + sel, M)).join('') : ''}</ul></div>`;
   }
 
+  // ---------- Week ----------
+  function weekStart(d){ const off = (new Date(d + 'T00:00').getDay() + 6) % 7; return addDays(d, -off); }
+  function nxWeekScreen(){
+    const base = weekStart(ui.scr.date || today()), td = today(), M = { mode: 'cal', p: 'wk:' }, end = addDays(base, 6);
+    const fmt = (d, o) => new Date(d + 'T00:00').toLocaleDateString('en-GB', o);
+    let rows = '';
+    for (let i = 0; i < 7; i++){
+      const d = addDays(base, i), { segs, any } = dayModel(d), all = tasksOn(d), dn = all.filter(t => t.status === 'done').length, tk = 'wk:d:' + d, open = isOpenK(tk, d === td);
+      rows += xrow({ k: 'wd:' + d, depth: 0, tk, def: d === td, open, ref: 'a:' + d, into: 1, nodrag: 1, icon: 'today', color: d === td ? '#5EE1FF' : d < td ? '#5B6B80' : '#8C9BB0', cls: ' band' + (d < td ? ' past' : ''),
+        label: esc(fmt(d, { weekday: 'long' })), meta: esc(fmt(d, { day: 'numeric', month: 'short' })) + (d === td ? ' · Today' : ''), count: all.length ? (dn ? dn + '/' : '') + all.length : '', act: `data-act="nx-date" data-date="${d}"` });
+      if (open){
+        const used = segs.filter(g => g.tasks.length);
+        rows += used.map(g => segRows(g, 1, M, false)).join('') + any.map(t => taskRows(t, 1, 'any:' + d, M)).join('');
+        if (!used.length && !any.length) rows += `<li class="xr" style="--d:1"><span class="xt"></span><span class="xl addl">Nothing planned</span></li>`;
+        rows += `<li class="xr add" style="--d:1"><span class="xt"></span><button type="button" class="xl addl" data-act="nx-add" data-date="${d}" data-s="">+ Add to ${esc(fmt(d, { weekday: 'long' }))}</button></li>`;
+      }
+    }
+    return `<div class="nx"><div class="nx-top"><div class="nx-hd"><button type="button" class="icon-btn" data-act="nx-wk" data-dir="-7" aria-label="Previous week">${I.back}</button><h1>${base === weekStart(td) ? 'This week' : 'Week'}</h1><button type="button" class="icon-btn" data-act="nx-wk" data-dir="7" aria-label="Next week">${I.fwd}</button></div>
+      <div class="sub">${esc(fmt(base, { day: 'numeric', month: 'short' }))} – ${esc(fmt(end, { day: 'numeric', month: 'short', year: 'numeric' }))}</div>${base !== weekStart(td) ? `<div class="nx-acts"><button type="button" class="nx-btn" data-act="nx-wk" data-dir="0">Back to this week</button></div>` : ''}</div>
+      <ul class="xlist wk">${rows}</ul><p class="nx-hint">Hold a task and drop it on another day to move it.</p></div>`;
+  }
+  // ---------- Year ----------
+  function nxYearScreen(){
+    const y = ui.yr || +today().slice(0, 4), td = today(), busy = {};
+    state.tasks.forEach(t => { if ((t.status === 'planned' || t.status === 'done') && t.date && !t.anchorOf && t.date.startsWith(y + '-')) busy[t.date] = (busy[t.date] || 0) + 1; if (isOpen(t) && t.due && t.due.startsWith(y + '-')) busy[t.due] = (busy[t.due] || 0) + 1; });
+    let months = '';
+    for (let m = 1; m <= 12; m++){
+      const first = new Date(y, m - 1, 1), off = (first.getDay() + 6) % 7, n = new Date(y, m, 0).getDate(), ym = `${y}-${pad(m)}`;
+      let cells = ''; for (let i = 0; i < off; i++) cells += '<i></i>';
+      for (let dn = 1; dn <= n; dn++){ const d = `${ym}-${pad(dn)}`; cells += `<i class="${d === td ? 'td' : ''}${busy[d] ? ' on' : ''}${d < td ? ' past' : ''}"></i>`; }
+      months += `<button type="button" class="ym${ym === td.slice(0, 7) ? ' cur' : ''}" data-act="nx-month" data-ym="${ym}"><b>${esc(first.toLocaleDateString('en-GB', { month: 'long' }))}</b><span class="ymg">${cells}</span></button>`;
+    }
+    return `<div class="nx"><div class="nx-top"><div class="nx-hd"><button type="button" class="icon-btn" data-act="nx-yr" data-dir="-1" aria-label="Previous year">${I.back}</button><h1>${y}</h1><button type="button" class="icon-btn" data-act="nx-yr" data-dir="1" aria-label="Next year">${I.fwd}</button></div><div class="sub">Dots show days with plans. Tap a month to open it.</div></div>
+      <div class="ygrid">${months}</div></div>`;
+  }
   // ---------- nav ----------
-  const NX_SCREENS = { now: nxNowScreen, day: nxDayScreen, life: nxLifeScreen, cal: nxCalScreen };
+  const NX_SCREENS = { now: nxNowScreen, day: nxDayScreen, week: nxWeekScreen, cal: nxCalScreen, year: nxYearScreen, life: nxLifeScreen };
+  const PLAN = [['now', 'Now'], ['day', 'Day'], ['week', 'Week'], ['cal', 'Month'], ['year', 'Year']], ORG = [['org', 'Organiser'], ['dump', 'Brain dump'], ['shared', 'Shared']];
+  const nxGroup = s => PLAN.some(x => x[0] === s) ? 'plan' : s === 'life' ? 'life' : ORG.some(x => x[0] === s) || s === 'home' ? 'org' : '';
+  function nxTabs(s){
+    const set = nxGroup(s) === 'plan' ? PLAN : nxGroup(s) === 'org' ? ORG : null; if (!set) return '';
+    return `<div class="toptabs" role="tablist">${set.map(([k, l]) => `<button type="button" role="tab" data-act="nx-nav" data-s="${k}" aria-selected="${k === s}">${l}${k === 'dump' && inbox().length ? ` <em>${inbox().length}</em>` : ''}</button>`).join('')}</div>`;
+  }
   function nxNav(){
-    const s = ui.scr.s, cur = k => (k === 'more' ? !NX_SCREENS[s] : s === k) ? ' aria-current="page"' : '';
-    const b = (k, ic, l) => `<button type="button" data-act="nx-nav" data-s="${k}"${cur(k)}>${ic}<span>${l}</span></button>`;
-    return b('now', NI.now, 'Now') + b('day', NI.day, 'Day') + b('life', NI.tree, 'Life') + b('cal', I.cal, 'Calendar') + b('more', NI.more, 'More');
+    const g = nxGroup(ui.scr.s), b = (k, ic, l) => `<button type="button" data-act="nx-nav" data-s="${k}"${g === k ? ' aria-current="page"' : ''}>${ic}<span>${l}</span></button>`;
+    return b('plan', NI.now, 'Planner') + b('life', NI.tree, 'Life') + b('org', I.wand, 'Organiser');
   }
   function nxAfter(){
-    document.body.classList.add('nxon'); $('#nxNav').innerHTML = nxNav();
+    document.body.classList.add('nxon'); document.body.dataset.scr = ui.scr.s; $('#nxNav').innerHTML = nxNav();
     if ($('#nxDlg').open) fillSheet();
     if (ui.flash){ const el = document.querySelector(`#app [data-k="${ui.flash}"]`); ui.flash = null; if (el){ el.scrollIntoView({ block: 'center' }); el.classList.add('flash'); } }
   }
@@ -2295,13 +2360,15 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
   }
   function nxAct(a, ds, el){
     switch (a){
-      case 'nx-nav': {
-        ui.hist = []; ui.xopen = {};
-        ui.scr = ds.s === 'more' ? { s: 'home' } : ds.s === 'day' ? { s: 'day', date: today() } : { s: ds.s };
+      case 'home': case 'nx-nav': {
+        const s = a === 'home' || ds.s === 'plan' ? 'now' : ds.s === 'more' || ds.s === 'home' ? 'org' : ds.s;
+        if (nxGroup(s) !== nxGroup(ui.scr.s) || s === 'now') ui.xopen = {};
+        ui.hist = []; ui.scr = s === 'day' || s === 'week' ? { s, date: today() } : { s };
+        if (s === 'cal'){ ui.calMonth = ui.calMonth || today().slice(0, 7); }
         ui.addAt = null; if ($('#nxDlg').open) $('#nxDlg').close(); render(); window.scrollTo(0, 0); return true;
       }
       case 'nx-date': if (ui.scr.s !== 'day') ui.hist.push(ui.scr); ui.scr = { s: 'day', date: ds.date }; if (ds.flash){ ui.flash = ds.flash; state.nopen['day:' + ds.flash] = true; } render(); if (!ds.flash) window.scrollTo(0, 0); return true;
-      case 'xtog': { const k = ds.tk, st = /^(now|cal):/.test(k) ? ui.xopen : state.nopen; st[k] = !isOpenK(k, ds.def === '1'); if (st === state.nopen) save(); render(); return true; }
+      case 'xtog': { const k = ds.tk, st = /^(now|cal|wk):/.test(k) ? ui.xopen : state.nopen; st[k] = !isOpenK(k, ds.def === '1'); if (st === state.nopen) save(); render(); return true; }
       case 'xjump': xjump(ds.ref); return true;
       case 'nx-node': if (!(ui.scr.s === 'life' && ui.scr.id === ds.id)) ui.hist.push(ui.scr); ui.scr = { s: 'life', id: ds.id }; { let p = nnode(ds.id); while (p && p.parent){ state.nopen['life:c:' + p.parent] = true; p = nnode(p.parent); } } render(); window.scrollTo(0, 0); return true;
       case 'nx-task': if (ds.id) nxSheet(ds.id); return true;
@@ -2335,6 +2402,9 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
         return true;
       }
       case 'nx-calsel': ui.calSel = ds.date; render(); return true;
+      case 'nx-wk': ui.scr = { s: 'week', date: ds.dir === '0' ? today() : addDays(weekStart(ui.scr.date || today()), +ds.dir) }; render(); return true;
+      case 'nx-yr': ui.yr = (ui.yr || +today().slice(0, 4)) + +ds.dir; render(); return true;
+      case 'nx-month': ui.calMonth = ds.ym; ui.calSel = ds.ym === today().slice(0, 7) ? today() : ds.ym + '-01'; ui.scr = { s: 'cal' }; render(); window.scrollTo(0, 0); return true;
       case 'nx-caltoday': ui.calMonth = today().slice(0, 7); ui.calSel = today(); render(); return true;
       case 'add-theme': {
         const name = ds.name, lk = themeLook(name), gaps = daySegs(today()).filter(g => !g.a && g.e - g.s >= 30);
