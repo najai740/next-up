@@ -483,7 +483,28 @@ body.nxon .toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
 .nx-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
 .nx-hd{display:flex;align-items:center;justify-content:center;gap:10px}
 .node-head{justify-content:center;text-align:center}.node-acts{justify-content:center}.crumbs{justify-content:center}
+.nx-head{display:flex;align-items:center;gap:8px;max-width:620px;margin:0 auto 20px}
+.nx-head .toptabs{margin:0;flex:1;min-width:0}
+.nx-more{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--nl);background:var(--n1);color:var(--nm)}
+.nx-more svg{width:20px;height:20px}
 .toptabs{display:flex;gap:3px;background:var(--n1);border:1px solid var(--nl);border-radius:14px;padding:4px;margin:0 auto 20px;max-width:560px;overflow-x:auto;scrollbar-width:none}
+.obox{background:var(--n1);border:1px solid var(--nl);border-radius:18px;padding:4px 6px;margin-top:12px}
+.obox.done{opacity:.9}
+.xr.zero .lb{color:var(--nm);font-weight:500}
+.org-grid.one-col{grid-template-columns:minmax(0,1fr);max-width:760px;margin:0 auto}
+.nnew{background:var(--n1);border:1px solid var(--nl);border-radius:18px;padding:10px;display:grid;gap:8px}
+.nnew textarea{width:100%;min-height:76px;border:none;background:transparent;color:var(--nt);font-size:16px;resize:vertical;padding:6px}
+.nnew textarea:focus{outline:none}
+.nnew input[type=text]{width:100%;border:none;background:transparent;color:var(--nt);padding:8px 6px}
+.nnew input[type=text]:focus{outline:none}
+.nnew-row{display:flex;gap:8px;align-items:center}
+.nnew-row select{flex:1;min-width:0;border:1px solid var(--s3);background:rgba(11,15,20,.55);color:var(--ink);border-radius:12px;padding:10px;font-size:16px;min-height:44px}
+.nnew-row .dpick{flex:1;min-width:0}
+.nnew .quick{margin:0}
+.nbanner{background:rgba(255,184,107,.10);border:1px solid rgba(255,184,107,.35);color:#FFD9A8;border-radius:14px;padding:10px 12px;font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;text-align:center}
+.nx-btn.sm{min-height:34px;padding:5px 12px;font-size:13px}
+#nxNoteBox textarea{width:100%;min-height:140px;border:1px solid var(--s3);background:rgba(11,15,20,.55);color:var(--ink);border-radius:14px;padding:12px;font-size:16px;line-height:1.5}
+.nx-nav button span{font-size:11px}
 .toptabs::-webkit-scrollbar{display:none}
 .toptabs button{flex:1;border:none;background:none;color:var(--nm);font-weight:700;font-size:14px;padding:9px 8px;border-radius:10px;white-space:nowrap;min-height:40px}
 .toptabs button[aria-selected="true"]{background:var(--n3);color:var(--nt);box-shadow:inset 0 0 0 1px rgba(94,225,255,.35)}
@@ -742,6 +763,7 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
 
 <dialog id="nxDlg" class="nxs"><div class="sh" id="nxBox"></div></dialog>
 <dialog id="nxAdd" class="nxs"><div class="sh" id="nxAddBox"></div></dialog>
+<dialog id="nxNote" class="nxs"><div class="sh" id="nxNoteBox"></div></dialog>
 <dialog id="nxCat" class="nxs"><div class="sh" id="nxCatBox"></div></dialog>
 <nav class="nx-nav" id="nxNav" aria-label="Main"></nav>
 
@@ -809,7 +831,7 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
         if (p && Array.isArray(p.tasks)){
           state.tasks = p.tasks.map(norm);
           state.anchors = Array.isArray(p.anchors) ? p.anchors : DEF_ANCHORS();
-          state.fold = p.fold || {}; state.cap = p.cap || 180; state.layout = p.layout || {}; state.templates = Array.isArray(p.templates) ? p.templates : []; if (Array.isArray(p.homeOrder)) state.homeOrder = p.homeOrder; state.sync = p.sync || null; state.cats = Array.isArray(p.cats) ? p.cats : null; state.nopen = p.nopen || {};
+          state.fold = p.fold || {}; state.cap = p.cap || 180; state.layout = p.layout || {}; state.templates = Array.isArray(p.templates) ? p.templates : []; if (Array.isArray(p.homeOrder)) state.homeOrder = p.homeOrder; state.sync = p.sync || null; state.cats = Array.isArray(p.cats) ? p.cats : null; state.nopen = p.nopen || {}; state.notes = Array.isArray(p.notes) ? p.notes : []; state.nfolders = Array.isArray(p.nfolders) ? p.nfolders : null;
           if (!p.v3){ state.anchors.forEach(a => { a.fold = false; }); state.layout = {}; state.v3 = true; }
           return;
         }
@@ -1392,13 +1414,13 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
   let sorts = [];
   function render(){
     const s = ui.scr.s; let html = '';
-    const label = x => x.s === 'now' ? 'Now' : x.s === 'week' ? 'Week' : x.s === 'year' ? 'Year' : x.s === 'life' ? 'Life' : x.s === 'home' ? 'Home' : x.s === 'day' ? 'Day planner' + (x.date && x.date !== today() ? ' (' + dayName(x.date) + ')' : '') : x.s === 'dump' ? 'Brain dump' : x.s === 'cal' ? 'Month' : x.s === 'org' ? 'Organiser' : x.s === 'shared' ? 'Shared' : x.s === 'timer' ? 'Focus mode' : x.s === 'step' ? ((nodeAt(get(x.id), x.path || []) || {}).title || 'Step') : (x.id && get(x.id) ? get(x.id).title : 'Focus');
+    const label = x => x.s === 'settings' ? 'Settings' : x.s === 'notes' ? 'Notes' : x.s === 'rem' ? 'Reminders' : x.s === 'shape' ? 'Day shape' : x.s === 'now' ? 'Now' : x.s === 'week' ? 'Week' : x.s === 'year' ? 'Year' : x.s === 'life' ? 'Life' : x.s === 'home' ? 'Home' : x.s === 'day' ? 'Day planner' + (x.date && x.date !== today() ? ' (' + dayName(x.date) + ')' : '') : x.s === 'dump' ? 'Brain dump' : x.s === 'cal' ? 'Month' : x.s === 'org' ? 'Organiser' : x.s === 'shared' ? 'Shared' : x.s === 'timer' ? 'Focus mode' : x.s === 'step' ? ((nodeAt(get(x.id), x.path || []) || {}).title || 'Step') : (x.id && get(x.id) ? get(x.id).title : 'Focus');
     const path = ui.hist.concat([ui.scr]);
     const crumbs = (path[0].s === 'home' ? '' : `<button type="button" class="crumb" data-act="home">Home</button><span class="csep">\\</span>`) +
       path.map((x, i) => i === path.length - 1 ? `<span class="crumb cur">${esc(label(x))}</span>` : `<button type="button" class="crumb" data-act="crumb" data-i="${i}">${esc(label(x))}</button><span class="csep">\\</span>`).join('');
     const navbar = `<div class="navbar"><button type="button" class="btn sm" data-act="back">${I.back} Back</button><nav class="crumbs-bar" aria-label="You are here">${I.home}${crumbs}</nav></div>`;
-    if (s === 'home'){ ui.scr = { s: 'org' }; return render(); }
-    if (NX_SCREENS[s]) html = nxTabs(s) + NX_SCREENS[s](); else if (s === 'dump') html = nxTabs(s) + dumpScreen(); else if (s === 'org') html = nxTabs(s) + orgScreen(); else if (s === 'shared') html = nxTabs(s) + sharedScreen(); else if (s === 'day') html = navbar + dayScreen(); else if (s === 'dump') html = navbar + dumpScreen(); else if (s === 'cal') html = navbar + calScreen(); else if (s === 'org') html = navbar + orgScreen(); else if (s === 'shared') html = navbar + sharedScreen(); else if (s === 'timer') html = navbar + timerScreen(); else if (s === 'step') html = navbar + stepScreen(); else html = navbar + focusScreen();
+    if (s === 'home' || s === 'dump'){ ui.scr = { s: 'org' }; return render(); }
+    if (NX_SCREENS[s]) html = nxHead(s) + NX_SCREENS[s](); else if (s === 'shared') html = nxHead(s) + sharedScreen(); else if (s === 'day') html = navbar + dayScreen(); else if (s === 'dump') html = navbar + dumpScreen(); else if (s === 'cal') html = navbar + calScreen(); else if (s === 'org') html = navbar + orgScreen(); else if (s === 'shared') html = navbar + sharedScreen(); else if (s === 'timer') html = navbar + timerScreen(); else if (s === 'step') html = navbar + stepScreen(); else html = navbar + focusScreen();
     const app = $('#app'), key = JSON.stringify(ui.scr);
     app.innerHTML = `<div class="${app.dataset.key !== key ? 'screen' : ''}">${html}</div>`; app.dataset.key = key;
     if (!state.tasks.some(t => t.runningSince)) document.title = 'Next Up v2';
@@ -2000,6 +2022,9 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
     day: sv('<path d="M8 5h12M8 12h12M8 19h12"/><circle cx="4" cy="5" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="19" r="1.2" fill="currentColor"/>'),
     tree: sv('<rect x="3" y="3.5" width="7" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="4.5" rx="1.5"/><rect x="13" y="16.5" width="8" height="4.5" rx="1.5"/><path d="M6.5 8.5v10h6.5M6.5 12.3H13"/>'),
     more: sv('<circle cx="5.5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="18.5" cy="12" r="1.6" fill="currentColor"/>'),
+    bell: sv('<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'),
+    note: sv('<path d="M6 3.5h9l3.5 3.5v13.5H6z"/><path d="M14.5 3.5v4h4M9 12h6M9 15.5h6"/>'),
+    vdots: sv('<circle cx="12" cy="5.5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="18.5" r="1.6" fill="currentColor"/>'),
     plus: sv('<path d="M12 5v14M5 12h14"/>'),
     chev: sv('<path d="M6 9l6 6 6-6"/>')
   };
@@ -2024,6 +2049,7 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
     ];
     if (!state.nopen || typeof state.nopen !== 'object') state.nopen = {};
     if (!ui.xopen) ui.xopen = {};
+    ensureNotes();
   }
   const catById = id => (state.cats || []).find(c => c.id === id);
   const aIcon = a => a.icon || themeLook(a.name).icon;
@@ -2232,17 +2258,170 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
     return `<div class="nx"><div class="nx-top"><div class="nx-hd"><button type="button" class="icon-btn" data-act="nx-yr" data-dir="-1" aria-label="Previous year">${I.back}</button><h1>${y}</h1><button type="button" class="icon-btn" data-act="nx-yr" data-dir="1" aria-label="Next year">${I.fwd}</button></div><div class="sub">Dots show days with plans. Tap a month to open it.</div></div>
       <div class="ygrid">${months}</div></div>`;
   }
+  // ---------- Organiser: sort the brain dump into Today / Next week / Later ----------
+  const HZ = [{ k: 'today', name: 'Today', icon: 'sun', color: NCOL.amber }, { k: 'week', name: 'Next week', icon: 'today', color: NCOL.blue }, { k: 'later', name: 'Later', icon: 'repeat', color: NCOL.purple }];
+  const catKey = t => catById(t.cat) ? t.cat : '';
+  function hzOf(t){
+    if (t.anchorOf || t.status === 'shared' || t.status === 'anchor') return null;
+    if (t.status === 'inbox') return 'inbox';
+    if (t.status === 'done') return 'done';
+    const td = today();
+    if (t.status === 'planned'){ const d = t.date || td; return d <= td ? 'today' : d <= addDays(td, 7) ? 'week' : 'later'; }
+    if (t.status === 'pool') return t.hz === 'week' ? 'week' : 'later';
+    return null;
+  }
+  function applyHz(t, hz, cat){
+    const td = today();
+    if (cat !== undefined) t.cat = cat;
+    if (hz === 'done'){ if (t.status !== 'done'){ if (t.runningSince){ t.remaining = remainingOf(t); t.runningSince = null; } t.prev = t.status; if (!t.date) t.date = td; t.status = 'done'; t.doneAt = Date.now(); } return; }
+    if (hz === 'inbox'){ t.status = 'inbox'; t.date = ''; t.start = null; t.hz = ''; return; }
+    if (hz === 'today'){ if (!(t.status === 'planned' && (t.date || td) <= td)){ t.status = 'planned'; t.date = td; t.start = null; } t.hz = ''; return; }
+    if (hz === 'week'){ if (!(t.status === 'planned' && t.date > td && t.date <= addDays(td, 7))){ t.status = 'pool'; t.date = ''; t.start = null; t.hz = 'week'; } return; }
+    if (hz === 'later'){ t.status = 'pool'; t.date = ''; t.start = null; t.hz = 'later'; }
+  }
+  const orgRoots = () => (state.cats || []).filter(c => !c.parent || !catById(c.parent)).map(c => nnode(c.id));
+  function orgCatRows(n, depth, hz, M){
+    const ids = nsub(n.id), ch = nkids(n.id), ts = state.tasks.filter(t => hzOf(t) === hz && catKey(t) === n.id).sort(byOrd);
+    const cnt = state.tasks.filter(t => hzOf(t) === hz && ids.includes(catKey(t))).length, has = ch.length + ts.length, tk = `org:${hz}:c:${n.id}`, open = has && isOpenK(tk, false);
+    let h = xrow({ k: `h:${hz}:${n.id}`, depth, tk: has ? tk : null, open, ref: `h:${hz}:${n.id}`, into: 1, nodrag: 1, icon: n.icon, color: n.color, cls: cnt ? '' : ' zero', label: esc(n.name), count: cnt || '', act: has ? `data-act="xtog" data-tk="${tk}" data-def="0"` : '' });
+    if (open) h += ch.map(c => orgCatRows(c, depth + 1, hz, M)).join('') + ts.map(t => taskRows(t, depth + 1, `h:${hz}:${n.id}`, M)).join('');
+    return h;
+  }
+  function nxOrgScreen(){
+    const M = { mode: 'org', p: 'org:', date: true }, ins = state.tasks.filter(t => hzOf(t) === 'inbox').sort(byOrd);
+    let mid = '';
+    HZ.forEach(z => {
+      const all = state.tasks.filter(t => hzOf(t) === z.k), tk = 'org:hz:' + z.k, open = isOpenK(tk, z.k === 'today');
+      mid += xrow({ k: 'h:' + z.k, depth: 0, tk, def: z.k === 'today', open, ref: 'h:' + z.k, into: 1, nodrag: 1, icon: z.icon, color: z.color, cls: ' band', label: z.name, count: all.length || '', act: `data-act="xtog" data-tk="${tk}" data-def="${z.k === 'today' ? 1 : 0}"` });
+      if (open) mid += orgRoots().map(n => orgCatRows(n, 1, z.k, M)).join('') + all.filter(t => !catKey(t)).sort(byOrd).map(t => taskRows(t, 1, `h:${z.k}:`, M)).join('');
+    });
+    const done = state.tasks.filter(t => hzOf(t) === 'done' && (!t.doneAt || Date.now() - t.doneAt < 30 * 864e5)).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+    const dk = 'org:done', dOpen = isOpenK(dk, false);
+    return `<div class="nx"><div class="nx-top"><h1>Organiser</h1><div class="sub">Catch it, then hold and drag it where it belongs.</div></div>
+      <form class="nx-addf" data-kind="cap" style="margin:0 0 6px"><input type="text" name="title" placeholder="Brain dump: note it, then forget it" aria-label="Add to brain dump" autocomplete="off"><button class="nx-btn pri" type="submit">Add</button></form>
+      <section class="obox"><ul class="xlist">${xrow({ k: 'h:inbox', depth: 0, ref: 'h:inbox', into: 1, nodrag: 1, icon: 'book', color: '#FFB86B', cls: ' band', label: 'To sort', count: ins.length || '', act: '' })}
+        ${ins.length ? ins.map(t => taskRows(t, 1, 'h:inbox', M)).join('') : `<li class="xr" style="--d:1"><span class="xt"></span><span class="xl addl">All sorted. Nice.</span></li>`}</ul></section>
+      <section class="obox"><ul class="xlist">${mid}</ul></section>
+      <section class="obox done"><ul class="xlist">${xrow({ k: 'h:done', depth: 0, tk: dk, open: dOpen, ref: 'h:done', into: 1, nodrag: 1, icon: 'star', color: '#4FD1A5', cls: ' band', label: 'Completed', count: done.length || '', act: `data-act="xtog" data-tk="${dk}" data-def="0"` })}
+        ${dOpen ? done.map(t => taskRows(t, 1, 'h:done', M)).join('') || `<li class="xr" style="--d:1"><span class="xt"></span><span class="xl addl">Nothing finished in the last month yet.</span></li>` : ''}</ul></section>
+      <p class="nx-hint">Drop a job on Today to put it on today's plan, on Next week or Later to park it, or on Completed to tick it off. Drop it on a folder inside them to file it too.</p></div>`;
+  }
+
+  // ---------- Life: day shape tab, and the ⋮ settings page (older tools kept out of the way) ----------
+  function orgParts(names){
+    const tpl = document.createElement('template'); tpl.innerHTML = orgScreen();
+    const secs = [...tpl.content.querySelectorAll('section')];
+    return names.map(n => secs.find(s => ((s.querySelector('h2') || {}).textContent || '').trim() === n)).filter(Boolean).map(s => s.outerHTML).join('');
+  }
+  function nxShapeScreen(){
+    return `<div class="nx"><div class="nx-top"><h1>Day shape</h1><div class="sub">The themes that make up your day, and help deciding what to do.</div></div><div class="org-grid one-col">${orgParts(['Day shape', 'Pick for me', 'Plan my week'])}</div></div>`;
+  }
+  function nxSettingsScreen(){
+    return `<div class="nx"><div class="nx-top"><h1>Settings</h1><div class="sub">Extra tools, kept out of the way.</div></div><div class="org-grid one-col">${orgParts(['Add a task', 'Find a task', 'Use again', 'Task details and notes', 'Backup and restore'])}</div></div>`;
+  }
+
+  // ---------- Notes and reminders ----------
+  function ensureNotes(){
+    if (!Array.isArray(state.nfolders) || !state.nfolders.length) state.nfolders = [{ id: 'nf-general', name: 'General', icon: 'book', color: NCOL.teal }, { id: 'nf-ideas', name: 'Ideas', icon: 'star', color: NCOL.yellow }];
+    if (!Array.isArray(state.notes)) state.notes = [];
+  }
+  const noteById = id => (state.notes || []).find(n => n.id === id);
+  const nfById = id => (state.nfolders || []).find(f => f.id === id);
+  const nkey = n => n.ord != null ? n.ord : -n.at;
+  const notesIn = fid => state.notes.filter(n => n.folder === fid || (fid === state.nfolders[0].id && !nfById(n.folder))).sort((a, b) => nkey(a) - nkey(b));
+  const ukDT = v => v ? new Date(v).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Not set';
+  const dtPick = (attr, v) => `<span class="dpick"><span class="dpv">${ukDT(v)}</span><input type="datetime-local" ${attr} value="${v || ''}" aria-label="When"></span>`;
+  const localDT = ms => { const d = new Date(ms); return ymd(d) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+  function relTime(v){ const m = Math.round((new Date(v).getTime() - Date.now()) / 60000); if (m < 0) return 'passed'; if (m < 60) return 'in ' + m + ' min'; if (m < 1440) return 'in ' + durLabel(Math.round(m / 5) * 5); return 'in ' + Math.round(m / 1440) + (Math.round(m / 1440) === 1 ? ' day' : ' days'); }
+  function noteRow(n, depth){
+    const first = (n.text || '').split('\n')[0] || 'Empty note';
+    return xrow({ k: 'n:' + n.id, depth, ref: 'n:' + n.id, ctx: 'nf:' + n.folder, icon: n.remind ? 'bell' : null, color: n.remind && !n.fired ? '#FFB86B' : '#7C8BA0', cls: ' task' + (n.remind && n.fired ? ' past' : ''),
+      label: esc(first), meta: n.remind ? esc(ukDT(n.remind)) : esc(new Date(n.at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })), act: `data-act="nx-noteopen" data-id="${n.id}"` });
+  }
+  function nxNotesScreen(){
+    ensureNotes(); const sel = nfById(ui.nfSel) ? ui.nfSel : state.nfolders[0].id;
+    const folders = state.nfolders.map(f => { const ns = notesIn(f.id), tk = 'nt:f:' + f.id, open = isOpenK(tk, false);
+      return xrow({ k: 'nf:' + f.id, depth: 0, tk, open, ref: 'nf:' + f.id, into: 1, nodrag: 1, icon: f.icon || 'book', color: f.color || NCOL.teal, cls: ' band', label: esc(f.name), count: ns.length || '', act: `data-act="xtog" data-tk="${tk}" data-def="0"`,
+        tail: `<button type="button" class="icon-btn" data-act="nx-nfedit" data-id="${f.id}" aria-label="Rename or delete ${esc(f.name)}">${I.edit}</button>` }) + (open ? (ns.map(n => noteRow(n, 1)).join('') || `<li class="xr" style="--d:1"><span class="xt"></span><span class="xl addl">Empty</span></li>`) : ''); }).join('');
+    return `<div class="nx"><div class="nx-top"><h1>Notes</h1><div class="sub">Write it down and it files itself away.</div></div>
+      <form class="nnew" data-kind="nx-note"><textarea name="title" rows="3" placeholder="Write a note…" aria-label="New note"></textarea>
+        <div class="nnew-row"><select name="folder" aria-label="Folder">${state.nfolders.map(f => `<option value="${f.id}"${f.id === sel ? ' selected' : ''}>${esc(f.name)}</option>`).join('')}</select><button class="nx-btn pri" type="submit">Save</button></div></form>
+      <section class="obox"><ul class="xlist">${folders}</ul></section>
+      <form class="nx-addf" data-kind="nx-nfolder"><input type="text" name="title" placeholder="New folder name" aria-label="New folder" autocomplete="off"><button class="nx-btn" type="submit">${NI.plus} Folder</button></form>
+      <p class="nx-hint">Hold a note to drag it into another folder.</p></div>`;
+  }
+  function notifState(){ if (!('Notification' in window)) return 'none'; return Notification.permission; }
+  function nxRemScreen(){
+    ensureNotes(); const up = state.notes.filter(n => n.remind && !n.fired).sort((a, b) => a.remind.localeCompare(b.remind)), past = state.notes.filter(n => n.remind && n.fired).sort((a, b) => b.remind.localeCompare(a.remind)).slice(0, 30);
+    const ns = notifState(), pk = 'nt:past', pOpen = isOpenK(pk, false), def = localDT(Math.ceil((Date.now() + 3600000) / 900000) * 900000);
+    const at = (h, m, addD) => { const d = new Date(); d.setDate(d.getDate() + (addD || 0)); d.setHours(h, m, 0, 0); return localDT(d.getTime()); };
+    const quick = [['In 30 min', localDT(Date.now() + 1800000)], ['In 1 hour', localDT(Date.now() + 3600000)], ['Tonight 8pm', at(20, 0)], ['Tomorrow 9am', at(9, 0, 1)]];
+    return `<div class="nx"><div class="nx-top"><h1>Reminders</h1><div class="sub">A note with a time. Your phone alerts you when it's due.</div></div>
+      ${ns === 'granted' ? '' : ns === 'denied' ? `<p class="nbanner">Notifications are blocked for this app. Allow them in your phone's settings for Brave, or use "Add to phone calendar" on each reminder.</p>` : ns === 'none' ? '' : `<p class="nbanner">Turn on notifications so reminders can pop up. <button type="button" class="nx-btn sm" data-act="nx-notif">Turn on</button></p>`}
+      <form class="nnew" data-kind="nx-rem"><input type="text" name="title" placeholder="Remind me to…" aria-label="Reminder" autocomplete="off" style="font-size:16px">
+        <div class="nnew-row">${dtPick('name="when"', def)}<button class="nx-btn pri" type="submit">${NI.bell} Set</button></div>
+        <div class="quick">${quick.map(([l, v]) => `<button type="button" data-act="nx-remq" data-v="${v}">${l}</button>`).join('')}</div></form>
+      <div class="nx-sec">COMING UP</div>
+      <section class="obox"><ul class="xlist">${up.length ? up.map(n => xrow({ k: 'r:' + n.id, depth: 0, icon: 'bell', color: '#FFB86B', nodrag: 1, label: esc((n.text || '').split('\n')[0]), meta: esc(ukDT(n.remind)) + ' · ' + relTime(n.remind), act: `data-act="nx-noteopen" data-id="${n.id}"` })).join('') : '<li class="nx-empty" style="padding-left:12px">No reminders set.</li>'}</ul></section>
+      ${past.length ? `<section class="obox done"><ul class="xlist">${xrow({ k: 'r:past', depth: 0, tk: pk, open: pOpen, icon: 'star', color: '#7C8BA0', cls: ' band', label: 'Done', count: past.length, nodrag: 1, act: `data-act="xtog" data-tk="${pk}" data-def="0"` })}${pOpen ? past.map(n => noteRow(n, 1)).join('') : ''}</ul></section>` : ''}
+      <p class="nx-hint">Reminders pop up while Next Up is open or in the background. Phones can stop web apps when they're fully closed, so for anything important tap a reminder and use "Add to phone calendar" as well.</p></div>`;
+  }
+  document.getElementById('nxNote').addEventListener('close', () => { const n = noteById(ui.nnote); if (n && !(n.text || '').trim() && !n.remind){ state.notes = state.notes.filter(x => x !== n); } ui.nnote = null; save(); render(); });
+  function nxNoteSheet(id){ ui.nnote = id; fillNote(); const dl = $('#nxNote'); if (!dl.open) dl.showModal(); }
+  function fillNote(){
+    const n = noteById(ui.nnote), dl = $('#nxNote'); if (!n){ if (dl.open) dl.close(); return; }
+    $('#nxNoteBox').innerHTML = `<div class="sh-head"><h3>${n.remind ? 'Reminder' : 'Note'}</h3><button type="button" class="icon-btn" data-act="nx-noteclose" aria-label="Close">${I.x}</button></div>
+      <textarea data-nn="text" rows="6" aria-label="Note text">${esc(n.text)}</textarea>
+      <div class="sh-grid" style="margin-top:12px"><label>Folder<select data-nn="folder">${state.nfolders.map(f => `<option value="${f.id}"${f.id === n.folder ? ' selected' : ''}>${esc(f.name)}</option>`).join('')}</select></label>
+        <label>Remind me${dtPick('data-nn="remind"', n.remind || '')}</label></div>
+      <div class="sh-acts">${n.remind ? `<button type="button" class="nx-btn" data-act="nx-ics" data-id="${n.id}">${I.cal} Add to phone calendar</button><button type="button" class="nx-btn ghost" data-act="nx-remclear" data-id="${n.id}">Remove reminder</button>` : ''}<span class="grow"></span><button type="button" class="nx-btn ghost" style="color:#FF7A88" data-act="nx-notedel" data-id="${n.id}">Delete</button></div>`;
+  }
+  function icsFor(n){
+    const d = new Date(n.remind), z = x => pad(x), stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+    const local = `${d.getFullYear()}${z(d.getMonth() + 1)}${z(d.getDate())}T${z(d.getHours())}${z(d.getMinutes())}00`;
+    const txt = (n.text || 'Reminder').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/[,;]/g, m => '\\' + m);
+    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Next Up//EN', 'BEGIN:VEVENT', 'UID:' + n.id + '@nextup', 'DTSTAMP:' + stamp, 'DTSTART:' + local, 'DURATION:PT10M', 'SUMMARY:' + txt.split('\\n')[0], 'DESCRIPTION:' + txt,
+      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + txt.split('\\n')[0], 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  }
+  function fireReminder(n){
+    const late = Date.now() - new Date(n.remind).getTime() > 3 * 60000, msg = (n.text || '').split('\n')[0];
+    toast((late ? 'Missed reminder: ' : 'Reminder: ') + msg, ['Open', () => { go({ s: 'rem' }); nxNoteSheet(n.id); }]);
+    try { ensureAudio(); chime(); setTimeout(chime, 1700); setTimeout(chime, 3400); } catch (e) {}
+    try { if (navigator.vibrate) navigator.vibrate([400, 150, 400, 150, 400]); } catch (e) {}
+    if ('Notification' in window && Notification.permission === 'granted' && navigator.serviceWorker && navigator.serviceWorker.controller){
+      navigator.serviceWorker.ready.then(r => r.showNotification(late ? 'Missed reminder' : 'Reminder', { body: n.text || '', tag: n.id, renotify: true, requireInteraction: true, vibrate: [400, 150, 400], icon: 'icons/icon-192.png', badge: 'icons/icon-192.png' })).catch(() => {});
+    }
+  }
+  function checkReminders(){
+    if (!Array.isArray(state.notes)) return; const now = Date.now(); let hit = false;
+    state.notes.forEach(n => { if (n.remind && !n.fired && new Date(n.remind).getTime() <= now){ n.fired = true; hit = true; fireReminder(n); } });
+    if (hit){ save(); if (['rem', 'notes'].includes(ui.scr.s) && !document.querySelector('dialog[open]')) render(); }
+  }
+  setInterval(checkReminders, 10000); setTimeout(checkReminders, 2000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkReminders(); });
+  function askNotify(){ try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission().then(() => render()); } catch (e) {} }
+
   // ---------- nav ----------
-  const NX_SCREENS = { now: nxNowScreen, day: nxDayScreen, week: nxWeekScreen, cal: nxCalScreen, year: nxYearScreen, life: nxLifeScreen };
-  const PLAN = [['now', 'Now'], ['day', 'Day'], ['week', 'Week'], ['cal', 'Month'], ['year', 'Year']], ORG = [['org', 'Organiser'], ['dump', 'Brain dump'], ['shared', 'Shared']];
-  const nxGroup = s => PLAN.some(x => x[0] === s) ? 'plan' : s === 'life' ? 'life' : ORG.some(x => x[0] === s) || s === 'home' ? 'org' : '';
+  const NX_SCREENS = { now: nxNowScreen, day: nxDayScreen, week: nxWeekScreen, cal: nxCalScreen, year: nxYearScreen, life: nxLifeScreen, shape: nxShapeScreen, org: nxOrgScreen, notes: nxNotesScreen, rem: nxRemScreen, settings: nxSettingsScreen };
+  const GROUPS = {
+    today: { label: 'Today', icon: NI.now, tabs: [['now', 'Now'], ['day', 'Day']] },
+    calendar: { label: 'Calendar', icon: I.cal, tabs: [['week', 'Week'], ['cal', 'Month'], ['year', 'Year']] },
+    life: { label: 'Life', icon: NI.tree, tabs: [['life', 'Folders'], ['shape', 'Day shape']] },
+    org: { label: 'Organiser', icon: I.wand, tabs: [['org', 'Organiser'], ['shared', 'Shared']] },
+    notes: { label: 'Notes', icon: NI.note, tabs: [['notes', 'Notes'], ['rem', 'Reminders']] }
+  };
+  const nxGroup = s => { if (s === 'home' || s === 'dump') return 'org'; for (const g in GROUPS) if (GROUPS[g].tabs.some(x => x[0] === s)) return g; return ''; };
   function nxTabs(s){
-    const set = nxGroup(s) === 'plan' ? PLAN : nxGroup(s) === 'org' ? ORG : null; if (!set) return '';
-    return `<div class="toptabs" role="tablist">${set.map(([k, l]) => `<button type="button" role="tab" data-act="nx-nav" data-s="${k}" aria-selected="${k === s}">${l}${k === 'dump' && inbox().length ? ` <em>${inbox().length}</em>` : ''}</button>`).join('')}</div>`;
+    const g = GROUPS[nxGroup(s)]; if (!g) return '';
+    return `<div class="toptabs" role="tablist">${g.tabs.map(([k, l]) => `<button type="button" role="tab" data-act="nx-nav" data-s="${k}" aria-selected="${k === s}">${l}${k === 'org' && inbox().length ? ` <em>${inbox().length}</em>` : ''}${k === 'rem' && (state.notes || []).some(n => n.remind && !n.fired) ? ` <em>${state.notes.filter(n => n.remind && !n.fired).length}</em>` : ''}</button>`).join('')}</div>`;
+  }
+  function nxHead(s){
+    if (s === 'settings') return `<div class="nx-head"><button type="button" class="nx-btn ghost" data-act="back">${I.back} Back</button><span class="grow"></span></div>`;
+    return `<div class="nx-head">${nxTabs(s) || '<span class="grow"></span>'}<button type="button" class="icon-btn nx-more" data-act="nx-nav" data-s="settings" aria-label="Settings and extra tools">${NI.vdots}</button></div>`;
   }
   function nxNav(){
-    const g = nxGroup(ui.scr.s), b = (k, ic, l) => `<button type="button" data-act="nx-nav" data-s="${k}"${g === k ? ' aria-current="page"' : ''}>${ic}<span>${l}</span></button>`;
-    return b('plan', NI.now, 'Planner') + b('life', NI.tree, 'Life') + b('org', I.wand, 'Organiser');
+    const cur = nxGroup(ui.scr.s);
+    return Object.entries(GROUPS).map(([k, g]) => `<button type="button" data-act="nx-nav" data-s="${k}"${cur === k ? ' aria-current="page"' : ''}>${g.icon}<span>${g.label}</span></button>`).join('');
   }
   function nxAfter(){
     document.body.classList.add('nxon'); document.body.dataset.scr = ui.scr.s; $('#nxNav').innerHTML = nxNav();
@@ -2312,7 +2491,8 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
   function pruneSteps(list){ for (let i = list.length - 1; i >= 0; i--){ const s = list[i]; pruneSteps(s.subtasks || []); if (!(s.title || '').trim() && !(s.subtasks || []).length) list.splice(i, 1); } }
   document.addEventListener('input', e => {
     const el = e.target;
-    if (el.matches('.dpick input')){ const s = el.parentNode.querySelector('.dpv'); if (s) s.textContent = ukDate(el.value); }
+    if (el.matches('.dpick input')){ const s = el.parentNode.querySelector('.dpv'); if (s) s.textContent = el.type === 'datetime-local' ? ukDT(el.value) : ukDate(el.value); }
+    if (el.dataset.nn === 'text'){ const n = noteById(ui.nnote); if (n){ n.text = el.value; saveSoon(); } }
     if (el.dataset.sn){ const at = stepAt(stepRef(el.dataset.sn)); if (at && at.s){ at.s.title = el.value; saveSoon(); } }
     if (el.dataset.bxt){ const t = get(el.dataset.bxt); if (t && el.value.trim()){ t.title = el.value; saveSoon(); } }
   });
@@ -2361,7 +2541,8 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
   function nxAct(a, ds, el){
     switch (a){
       case 'home': case 'nx-nav': {
-        const s = a === 'home' || ds.s === 'plan' ? 'now' : ds.s === 'more' || ds.s === 'home' ? 'org' : ds.s;
+        const s = a === 'home' ? 'now' : ({ today: 'now', plan: 'now', calendar: 'week', more: 'org', home: 'org', dump: 'org' })[ds.s] || ds.s;
+        if (s === 'settings'){ if (ui.scr.s !== 'settings') ui.hist.push(ui.scr); ui.scr = { s: 'settings' }; render(); window.scrollTo(0, 0); return true; }
         if (nxGroup(s) !== nxGroup(ui.scr.s) || s === 'now') ui.xopen = {};
         ui.hist = []; ui.scr = s === 'day' || s === 'week' ? { s, date: today() } : { s };
         if (s === 'cal'){ ui.calMonth = ui.calMonth || today().slice(0, 7); }
@@ -2402,6 +2583,21 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
         return true;
       }
       case 'nx-calsel': ui.calSel = ds.date; render(); return true;
+      case 'nx-noteopen': nxNoteSheet(ds.id); return true;
+      case 'nx-noteclose': $('#nxNote').close(); return true;
+      case 'nx-notedel': { const n = noteById(ds.id); if (!n) return true; if (el.dataset.sure !== '1'){ el.dataset.sure = '1'; el.textContent = 'Tap again to delete'; return true; }
+        const snap = JSON.stringify(state.notes); state.notes = state.notes.filter(x => x !== n); ui.nnote = null; $('#nxNote').close(); save(); render(); toast('Note deleted', ['Undo', () => { state.notes = JSON.parse(snap); save(); render(); }]); return true; }
+      case 'nx-remclear': { const n = noteById(ds.id); if (n){ n.remind = ''; n.fired = false; save(); fillNote(); render(); } return true; }
+      case 'nx-ics': { const n = noteById(ds.id); if (!n || !n.remind) return true; const a2 = document.createElement('a'); a2.href = URL.createObjectURL(new Blob([icsFor(n)], { type: 'text/calendar' })); a2.download = 'reminder.ics'; document.body.appendChild(a2); a2.click(); a2.remove(); toast('Open the downloaded file to add it to your calendar'); return true; }
+      case 'nx-remq': { const i = $('form[data-kind="nx-rem"] input[name=when]'); if (i){ i.value = ds.v; i.parentNode.querySelector('.dpv').textContent = ukDT(ds.v); } return true; }
+      case 'nx-notif': askNotify(); return true;
+      case 'nx-nfedit': { const f = nfById(ds.id); if (!f) return true; ui.nfEdit = f.id;
+        $('#nxNoteBox').innerHTML = `<form data-kind="nx-nfsave"><div class="sh-head"><h3>Folder</h3><button type="button" class="icon-btn" data-act="nx-noteclose" aria-label="Close">${I.x}</button></div>
+          <input type="text" name="title" class="search" style="font-size:17px;padding:13px 14px;margin-bottom:14px" value="${esc(f.name)}" aria-label="Folder name" autocomplete="off">
+          <div class="sh-acts">${state.nfolders.length > 1 ? `<button type="button" class="nx-btn ghost" style="color:#FF7A88" data-act="nx-nfdel" data-id="${f.id}">Delete folder</button>` : ''}<span class="grow"></span><button type="submit" class="nx-btn pri">Save</button></div></form>`;
+        ui.nnote = null; $('#nxNote').showModal(); return true; }
+      case 'nx-nfdel': { const f = nfById(ds.id); if (!f) return true; if (el.dataset.sure !== '1'){ el.dataset.sure = '1'; el.textContent = 'Tap again: notes move to ' + state.nfolders.find(x => x !== f).name; return true; }
+        const to = state.nfolders.find(x => x !== f).id; state.notes.forEach(n => { if (n.folder === f.id) n.folder = to; }); state.nfolders = state.nfolders.filter(x => x !== f); $('#nxNote').close(); save(); render(); return true; }
       case 'nx-wk': ui.scr = { s: 'week', date: ds.dir === '0' ? today() : addDays(weekStart(ui.scr.date || today()), +ds.dir) }; render(); return true;
       case 'nx-yr': ui.yr = (ui.yr || +today().slice(0, 4)) + +ds.dir; render(); return true;
       case 'nx-month': ui.calMonth = ds.ym; ui.calSel = ds.ym === today().slice(0, 7) ? today() : ds.ym + '-01'; ui.scr = { s: 'cal' }; render(); window.scrollTo(0, 0); return true;
@@ -2417,6 +2613,10 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
   }
   function nxSubmit(f, title){
     const k = f.dataset.kind;
+    if (k === 'nx-note'){ ensureNotes(); const fid = f.elements.folder.value; ui.nfSel = fid; state.notes.push({ id: uid(), text: title, folder: fid, at: Date.now(), remind: '', fired: false }); save(); render(); toast('Saved to ' + nfById(fid).name); return true; }
+    if (k === 'nx-rem'){ ensureNotes(); const w = f.elements.when.value; if (!w){ toast('Pick when to be reminded'); return true; } state.notes.push({ id: uid(), text: title, folder: state.nfolders[0].id, at: Date.now(), remind: w, fired: false }); save(); askNotify(); render(); toast('Reminder set for ' + ukDT(w)); return true; }
+    if (k === 'nx-nfolder'){ ensureNotes(); const c = Object.values(NCOL); state.nfolders.push({ id: 'nf' + uid(), name: title, icon: 'book', color: c[state.nfolders.length % c.length] }); save(); render(); return true; }
+    if (k === 'nx-nfsave'){ const fo = nfById(ui.nfEdit); if (fo) fo.name = title; $('#nxNote').close(); save(); render(); return true; }
     if (k === 'nx-quick'){
       const dv = f.elements.date.value, sv2 = f.elements.seg.value, cat = f.elements.cat.value;
       const t = addTask({ title, status: dv ? 'planned' : 'pool', date: dv || '', start: dv && sv2 !== '' ? +sv2 : null, cat });
@@ -2433,6 +2633,8 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
     return false;
   }
   document.addEventListener('change', e => {
+    const nn = e.target.closest('[data-nn]');
+    if (nn){ const n = noteById(ui.nnote); if (!n) return; if (nn.dataset.nn === 'folder') n.folder = nn.value; if (nn.dataset.nn === 'remind'){ n.remind = nn.value; n.fired = false; if (nn.value) askNotify(); } save(); render(); fillNote(); return; }
     if (e.target.matches('#nxAddBox input[name=date]')){ const s = $('#nxAddBox select[name=seg]'); if (s) s.innerHTML = segOptions(e.target.value || today(), null); return; }
     const f = e.target.closest('[data-nf]'); if (!f) return; const t = get(ui.nsheet); if (!t) return;
     const v = f.value, k = f.dataset.nf;
@@ -2448,7 +2650,7 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
   document.addEventListener('click', e => { const dl = e.target.closest('#nxAdd, #nxCat'); if (dl && e.target === dl) dl.close(); });
 
   // ---------- drag and drop: hold to move tasks, steps and folders ----------
-  function pref(r){ const p = String(r).split(':'); if (p[0] === 's') return Object.assign({ type: 's' }, stepRef(r)); if (p[0] === 'b') return { type: 'b', d: p[1], s: +p[2] }; if (p[0] === 'a') return { type: 'a', d: p[1] }; return { type: p[0], id: p[1] }; }
+  function pref(r){ const p = String(r).split(':'); if (p[0] === 'h') return { type: 'h', hz: p[1], cat: p.length > 2 ? p[2] : undefined }; if (p[0] === 's') return Object.assign({ type: 's' }, stepRef(r)); if (p[0] === 'b') return { type: 'b', d: p[1], s: +p[2] }; if (p[0] === 'a') return { type: 'a', d: p[1] }; return { type: p[0], id: p[1] }; }
   function takeStep(R){ const at = stepAt(R); if (!at || !at.s) return null; at.list.splice(at.list.indexOf(at.s), 1); return at.s; }
   function takeTask(id){ const t = get(id); if (!t) return null; if (t.runningSince){ t.remaining = remainingOf(t); t.runningSince = null; } state.tasks = state.tasks.filter(x => x !== t); state.tasks.forEach(x => { x.deps = (x.deps || []).filter(y => y !== id); }); return t; }
   const asStep = t => ({ id: t.id, title: t.title, dur: t.dur || 0, done: t.status === 'done', open: false, notes: t.notes || '', subtasks: t.subtasks || [] });
@@ -2458,6 +2660,7 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
     if (p[0] === 'cat') return state.tasks.filter(t => t.cat === (p[1] === 'root' ? '' : p[1]) && !t.anchorOf).sort(byOrd);
     if (p[0] === 'band'){ const g = dayModel(p[1]).segs.find(x => x.s === +p[2]); return g ? g.tasks : []; }
     if (p[0] === 'any') return dayModel(p[1]).any;
+    if (p[0] === 'h') return state.tasks.filter(t => hzOf(t) === p[1] && (p.length < 3 || catKey(t) === p[2])).sort(byOrd);
     return [];
   }
   function placeIn(t, ctx){
@@ -2465,6 +2668,7 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
     if (p[0] === 'cat') t.cat = p[1] === 'root' ? '' : p[1];
     if (p[0] === 'band'){ t.date = p[1]; t.start = +p[2]; if (t.status !== 'done') t.status = 'planned'; }
     if (p[0] === 'any'){ t.date = p[1]; t.start = null; if (t.status !== 'done') t.status = 'planned'; }
+    if (p[0] === 'h') applyHz(t, p[1], p.length > 2 ? p[2] : undefined);
   }
   function ordFor(ctx, selfId, nearId, pos){
     const L = listOf(ctx).filter(x => x.id !== selfId), keys = L.map(okey);
@@ -2477,6 +2681,15 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
   function dndMove(src, row, pos, dry){
     const S = pref(src), tref = row.dataset.dref, T = pref(tref), ctx = row.dataset.dctx || '';
     if (src === tref) return false;
+    if (S.type === 'n'){
+      const n = noteById(S.id); if (!n) return false; let fid, near = null;
+      if (T.type === 'nf') fid = T.id; else if (T.type === 'n'){ const tn = noteById(T.id); if (!tn) return false; fid = tn.folder; near = T.id; } else return false;
+      if (dry) return true;
+      const L = notesIn(fid).filter(x => x !== n), keys = L.map(nkey), i = near ? L.findIndex(x => x.id === near) : -1;
+      n.folder = fid; n.ord = i < 0 ? (keys.length ? Math.max(...keys) + 1000 : 0) : pos === 'before' ? (i > 0 ? (keys[i - 1] + keys[i]) / 2 : keys[i] - 1000) : (i < L.length - 1 ? (keys[i] + keys[i + 1]) / 2 : keys[i] + 1000);
+      state.nopen['nt:f:' + fid] = true; return true;
+    }
+    if (T.type === 'n' || T.type === 'nf') return false;
     if (S.type === 'c'){
       const c = catById(S.id); if (!c || T.type !== 'c' || nsub(S.id).includes(T.id)) return false;
       if (dry) return true;
@@ -2486,6 +2699,7 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
     }
     let dest = null;
     if (T.type === 'c') dest = { ctx: 'cat:' + T.id };
+    else if (T.type === 'h') dest = { ctx: tref };
     else if (T.type === 'b') dest = { ctx: `band:${T.d}:${T.s}` };
     else if (T.type === 'a') dest = { ctx: 'any:' + T.d };
     else if (T.type === 't') dest = pos === 'into' ? { tid: T.id, path: [] } : ctx ? { ctx, near: T.id, pos } : null;
@@ -2513,7 +2727,7 @@ body.dnd-on,body.dnd-on *{-webkit-user-select:none!important;user-select:none!im
   function dndLabel(row){ const i = row.querySelector('.sn, .bx-title'); return (i ? i.value : (row.querySelector('.lb') || row).textContent || '').trim() || 'item'; }
   function dndZone(row, y){
     const r = row.getBoundingClientRect(), f = (y - r.top) / Math.max(1, r.height), T = pref(row.dataset.dref);
-    if (T.type === 'b' || T.type === 'a' || row.classList.contains('sh-head') || (T.type === 'c' && dnd.S.type !== 'c')) return 'into';
+    if (T.type === 'b' || T.type === 'a' || T.type === 'h' || T.type === 'nf' || row.classList.contains('sh-head') || (T.type === 'c' && dnd.S.type !== 'c')) return 'into';
     if (T.type === 't' && !row.dataset.dctx) return 'into';
     return f < .3 ? 'before' : f > .7 ? 'after' : 'into';
   }
