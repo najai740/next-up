@@ -1,6 +1,6 @@
 // Next Up offline worker. Network first, so a new version shows up the next time
 // the app opens online; falls back to the saved copy when offline.
-const CACHE = 'nextup-v3';
+const CACHE = 'nextup-v4';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'sortable.min.js', 'fonts/manrope.css',
   'fonts/manrope-latin-400-normal.woff2', 'fonts/manrope-latin-500-normal.woff2', 'fonts/manrope-latin-600-normal.woff2',
   'fonts/manrope-latin-700-normal.woff2', 'fonts/manrope-latin-800-normal.woff2',
@@ -14,4 +14,10 @@ self.addEventListener('fetch', e => {
     if (res.ok){ const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
     return res;
   }).catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || (req.mode === 'navigate' ? caches.match('index.html') : undefined))));
+});
+
+// Tapping a reminder notification opens (or focuses) the app.
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => cs.length ? cs[0].focus() : self.clients.openWindow('./')));
 });
